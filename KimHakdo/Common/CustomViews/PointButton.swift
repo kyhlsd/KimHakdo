@@ -6,18 +6,12 @@
 //
 
 import UIKit
-import RxSwift
-import RxCocoa
 
 final class PointButton: UIButton {
-
-    let isEnabledTrigger = BehaviorRelay(value: true)
-    private let disposeBag = DisposeBag()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
-        bind()
     }
     
     private func setup() {
@@ -26,17 +20,12 @@ final class PointButton: UIButton {
         clipsToBounds = true
     }
     
-    private func bind() {
-        isEnabledTrigger.bind(with: self) { owner, value in
-            owner.isEnabled = value
-            owner.backgroundColor = value ? .point : .disabled
-        }
-        .disposed(by: disposeBag)
-    }
-    
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
+    static func getColor(_ isEnabled: Bool) -> UIColor {
+        isEnabled ? .point : .disabled
+    }
 }

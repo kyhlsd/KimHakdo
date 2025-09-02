@@ -53,8 +53,6 @@ final class LoginView: BaseView {
     
     let warningLabel = {
         let label = UILabel()
-        // TODO: Binding 후 삭제
-        label.text = "이메일 또는 비밀번호를 입력해주세요."
         label.font = AppFont.warning
         label.textColor = .point
         label.textAlignment = .center
