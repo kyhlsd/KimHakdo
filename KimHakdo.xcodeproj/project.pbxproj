@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		15E805982E66E8D600EA2172 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 15E805972E66E8CF00EA2172 /* .gitignore */; };
 		15E806372E66F3BF00EA2172 /* Toast in Frameworks */ = {isa = PBXBuildFile; productRef = 15E806362E66F3BF00EA2172 /* Toast */; };
+		15E8067D2E66FF9B00EA2172 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 15E8067C2E66FF9B00EA2172 /* SnapKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +44,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				15E806372E66F3BF00EA2172 /* Toast in Frameworks */,
+				15E8067D2E66FF9B00EA2172 /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +89,7 @@
 			name = KimHakdo;
 			packageProductDependencies = (
 				15E806362E66F3BF00EA2172 /* Toast */,
+				15E8067C2E66FF9B00EA2172 /* SnapKit */,
 			);
 			productName = KimHakdo;
 			productReference = 15E8057F2E66E82600EA2172 /* KimHakdo.app */;
@@ -118,6 +121,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				15E806352E66F3BF00EA2172 /* XCRemoteSwiftPackageReference "Toast-Swift" */,
+				15E8067B2E66FF9B00EA2172 /* XCRemoteSwiftPackageReference "SnapKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 15E805802E66E82600EA2172 /* Products */;
@@ -368,6 +372,14 @@
 				minimumVersion = 5.1.1;
 			};
 		};
+		15E8067B2E66FF9B00EA2172 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -375,6 +387,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 15E806352E66F3BF00EA2172 /* XCRemoteSwiftPackageReference "Toast-Swift" */;
 			productName = Toast;
+		};
+		15E8067C2E66FF9B00EA2172 /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 15E8067B2E66FF9B00EA2172 /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

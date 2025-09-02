@@ -9,7 +9,9 @@ import UIKit
 
 enum AppFont {
     static let title = UIFont.systemFont(ofSize: 28, weight: .heavy)
-    static let subtitle = UIFont.systemFont(ofSize: 14, weight: .bold)
+    static let subtitle = UIFont.systemFont(ofSize: 16, weight: .semibold)
     static let body = UIFont.systemFont(ofSize: 14, weight: .regular)
     static let caption = UIFont.systemFont(ofSize: 12, weight: .regular)
+    static let warning = UIFont.systemFont(ofSize: 14, weight: .bold)
+    static let button = UIFont.systemFont(ofSize: 16, weight: .semibold)
 }

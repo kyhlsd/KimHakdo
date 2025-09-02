@@ -7,9 +7,10 @@
 
 import Foundation
 
-private protocol BaseViewController: AnyObject {
-    typealias ViewModel = any BaseViewModel
-    
+protocol BaseViewController: AnyObject {
+    associatedtype ViewModel: BaseViewModel
+    associatedtype View: BaseView
+    var mainView: View { get }
     var viewModel: ViewModel { get }
-    func bind(viewModel: ViewModel)
+    func bind()
 }

@@ -1,6 +1,15 @@
 {
-  "originHash" : "cdde83a508783d312cc3a582ef10ac305fcd40f0859e132bdf50db42d3603aae",
+  "originHash" : "b63bcdec51abd36f1db3b18593f88bdbb664330a1b29da9b8cd4acb9926c78bc",
   "pins" : [
+    {
+      "identity" : "snapkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SnapKit/SnapKit.git",
+      "state" : {
+        "revision" : "2842e6e84e82eb9a8dac0100ca90d9444b0307f4",
+        "version" : "5.7.1"
+      }
+    },
     {
       "identity" : "toast-swift",
       "kind" : "remoteSourceControl",
