@@ -32,36 +32,22 @@ final class LoginView: BaseView {
     }()
     
     let emailTextField = {
-        let textField = UITextField()
+        let textField = PointTextField()
         textField.placeholder = "이메일을 입력하세요"
         textField.keyboardType = .emailAddress
-        textField.font = AppFont.body
-        textField.layer.borderColor = UIColor.primary.cgColor
-        textField.layer.borderWidth = 1
-        textField.layer.cornerRadius = CornerRadius.small
-        textField.clipsToBounds = true
         return textField
     }()
     
     let passwordTextField = {
-        let textField = UITextField()
+        let textField = PointTextField()
         textField.placeholder = "비밀번호를 입력하세요"
         textField.isSecureTextEntry = true
-        textField.font = AppFont.body
-        textField.layer.borderColor = UIColor.primary.cgColor
-        textField.layer.borderWidth = 1
-        textField.layer.cornerRadius = CornerRadius.small
-        textField.clipsToBounds = true
         return textField
     }()
     
     let loginButton = {
-        let button = UIButton()
+        let button = PointButton()
         button.setTitle("로그인", for: .normal)
-        button.backgroundColor = .primary
-        button.titleLabel?.font = AppFont.button
-        button.layer.cornerRadius = CornerRadius.small
-        button.clipsToBounds = true
         return button
     }()
     
@@ -70,7 +56,7 @@ final class LoginView: BaseView {
         // TODO: Binding 후 삭제
         label.text = "이메일 또는 비밀번호를 입력해주세요."
         label.font = AppFont.warning
-        label.textColor = .primary
+        label.textColor = .point
         label.textAlignment = .center
         return label
     }()
