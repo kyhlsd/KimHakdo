@@ -19,6 +19,43 @@ final class LookupClassView: BaseView {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.register(cellClass: CategoryCollectionViewCell.self)
         collectionView.showsHorizontalScrollIndicator = false
+        collectionView.backgroundColor = .clear
+        return collectionView
+    }()
+    
+    let countLabel = {
+        let label = UILabel()
+        label.textColor = .black
+        label.font = AppFont.accent
+        label.text = "923개"
+        return label
+    }()
+    
+    let sortButton = {
+        var config = UIButton.Configuration.plain()
+        var titleContainer = AttributeContainer()
+        titleContainer.font = AppFont.accent
+        config.attributedTitle = AttributedString("최신순", attributes: titleContainer)
+        config.image = .sort
+        config.imagePlacement = .trailing
+        config.imagePadding = 4
+        config.baseForegroundColor = .point
+        config.contentInsets = .zero
+        let button = UIButton()
+        button.configuration = config
+        return button
+    }()
+    
+    let separatorLine = SeperatorLine()
+    
+    let classCollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.sectionInset = UIEdgeInsets(top: AppPadding.verticalPadding / 2, left: AppPadding.horizontalPadding, bottom: AppPadding.verticalPadding / 2, right: AppPadding.horizontalPadding)
+        layout.itemSize = CGSize(width: Constants.deviceWidth - AppPadding.horizontalPadding * 2, height: 240)
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.register(cellClass: LookupClassCollectionViewCell.self)
+        collectionView.backgroundColor = .clear
         return collectionView
     }()
     
@@ -27,7 +64,7 @@ final class LookupClassView: BaseView {
     }
     
     override func setupHierarchy() {
-        [categoryCollectionView].forEach {
+        [categoryCollectionView, countLabel, sortButton, separatorLine, classCollectionView].forEach {
             addSubview($0)
         }
     }
@@ -37,6 +74,27 @@ final class LookupClassView: BaseView {
             make.top.equalTo(safeAreaLayoutGuide).offset(AppPadding.verticalPadding)
             make.height.equalTo(36)
             make.horizontalEdges.equalToSuperview()
+        }
+        
+        countLabel.snp.makeConstraints { make in
+            make.top.equalTo(categoryCollectionView.snp.bottom).offset(AppPadding.verticalPadding)
+            make.leading.equalToSuperview().offset(AppPadding.horizontalPadding)
+        }
+        
+        sortButton.snp.makeConstraints { make in
+            make.bottom.equalTo(countLabel.snp.bottom)
+            make.trailing.equalToSuperview().offset(-AppPadding.horizontalPadding)
+        }
+        
+        separatorLine.snp.makeConstraints { make in
+            make.top.equalTo(countLabel.snp.bottom).offset(AppPadding.verticalPadding)
+            make.horizontalEdges.equalToSuperview()
+        }
+        
+        classCollectionView.snp.makeConstraints { make in
+            make.top.equalTo(separatorLine.snp.bottom)
+            make.horizontalEdges.equalToSuperview()
+            make.bottom.equalTo(safeAreaLayoutGuide)
         }
     }
     

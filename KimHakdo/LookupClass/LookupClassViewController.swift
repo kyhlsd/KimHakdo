@@ -37,6 +37,11 @@ final class LookupClassViewController: UIViewController, BaseViewController {
             }
             .disposed(by: disposeBag)
         
+        Observable.just([1, 2, 3, 4])
+            .bind(to: mainView.classCollectionView.rx.items(cellIdentifier: LookupClassCollectionViewCell.identifier, cellType: LookupClassCollectionViewCell.self)) { _, element, cell in
+                
+            }
+            .disposed(by: disposeBag)
     }
     
     private func setNavItem() {

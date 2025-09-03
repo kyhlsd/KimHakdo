@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-final class CategoryCollectionViewCell: UICollectionViewCell, Identifying {
+final class CategoryCollectionViewCell: BaseCollectionViewCell<(ClassCategory, Bool)> {
     
     private let containerView = {
         let view = UIView()
@@ -23,21 +23,11 @@ final class CategoryCollectionViewCell: UICollectionViewCell, Identifying {
         return label
     }()
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setup()
-    }
-    
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
     override func draw(_ rect: CGRect) {
         containerView.layer.cornerRadius = containerView.frame.height / 2
     }
-    
-    func setData(data: (ClassCategory, Bool)) {
+        
+    override func setData(data: (ClassCategory, Bool)) {
         let (category, isSelected) = data
         label.text = category.description
         
@@ -46,10 +36,12 @@ final class CategoryCollectionViewCell: UICollectionViewCell, Identifying {
         containerView.layer.borderColor = color.cgColor
     }
     
-    private func setup() {
+    override func setupHierarchy() {
         contentView.addSubview(containerView)
         containerView.addSubview(label)
-        
+    }
+    
+    override func setupLayout() {
         containerView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
