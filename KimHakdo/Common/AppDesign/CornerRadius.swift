@@ -8,7 +8,7 @@
 import Foundation
 
 enum CornerRadius {
-    static let big = 12
-    static let medium = 8
-    static let small = 4
+    static let big: CGFloat = 14
+    static let medium: CGFloat = 10
+    static let small: CGFloat = 6
 }
