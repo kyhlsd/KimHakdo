@@ -6,13 +6,41 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
-final class LookupClassViewController: UIViewController {
+final class LookupClassViewController: UIViewController, BaseViewController {
+    
+    let mainView = LookupClassView()
+    let viewModel = LookupClassViewModel()
+    private let disposeBag = DisposeBag()
+    
+    override func loadView() {
+        view = mainView
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        view.backgroundColor = .background
+        setNavItem()
+        bind()
     }
 
+    func bind() {
+        let input = LookupClassViewModel.Input(
+            selectCategory: mainView.categoryCollectionView.rx.modelSelected((ClassCategory, Bool).self)
+        )
+        let output = viewModel.transform(input: input)
+        
+        output.categories
+            .bind(to: mainView.categoryCollectionView.rx.items(cellIdentifier: CategoryCollectionViewCell.identifier, cellType: CategoryCollectionViewCell.self)) { _, element, cell in
+                cell.setData(data: element)
+            }
+            .disposed(by: disposeBag)
+        
+    }
+    
+    private func setNavItem() {
+        navigationItem.titleView?.tintColor = .accent
+        navigationItem.title = "클래스 조회"
+    }
 }
