@@ -62,6 +62,12 @@ final class LoginViewController: UIViewController, BaseViewController {
                 owner.convertToLookupVC()
             }
             .disposed(by: disposeBag)
+        
+        output.errorAlert
+            .bind(with: self) { owner, message in
+                owner.presentDefaultAlert(title: "로그인 실패", message: message)
+            }
+            .disposed(by: disposeBag)
     }
     
     private func convertToLookupVC() {

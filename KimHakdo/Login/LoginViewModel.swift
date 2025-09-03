@@ -11,6 +11,8 @@ import RxCocoa
 
 final class LoginViewModel: BaseViewModel {
     
+    private let disposeBag = DisposeBag()
+    
     struct Input {
         let email: ControlProperty<String?>
         let password: ControlProperty<String?>
@@ -22,15 +24,15 @@ final class LoginViewModel: BaseViewModel {
         let firstResponder: Observable<Void>
         let warningText: PublishRelay<String>
         let convertToLookupVC: PublishRelay<Void>
+        let errorAlert: PublishRelay<String>
     }
-    
-    private let disposeBag = DisposeBag()
     
     func transform(input: Input) -> Output {
         let buttonEnabled = BehaviorRelay(value: false)
         let firstResponder = Observable.just(())
         let warningText = PublishRelay<String>()
         let convertToLookupVC = PublishRelay<Void>()
+        let errorAlert = PublishRelay<String>()
         
         let email = input.email.orEmpty
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -72,8 +74,7 @@ final class LoginViewModel: BaseViewModel {
                     owner.saveToken(token: value.accessToken)
                     convertToLookupVC.accept(())
                 case .failure(let error):
-                    // TODO: 에러 처리
-                    print(error)
+                    errorAlert.accept(error.localizedDescription)
                 }
             }
             .disposed(by: disposeBag)
@@ -82,7 +83,8 @@ final class LoginViewModel: BaseViewModel {
             buttonEnabled: buttonEnabled,
             firstResponder: firstResponder,
             warningText: warningText,
-            convertToLookupVC: convertToLookupVC
+            convertToLookupVC: convertToLookupVC,
+            errorAlert: errorAlert
         )
     }
     

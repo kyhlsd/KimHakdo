@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Network
 import Alamofire
 import RxSwift
 
@@ -13,15 +14,49 @@ final class NetworkManager {
     static let shared = NetworkManager()
     private init() {}
     
+    private let queue = DispatchQueue.global(qos: .background)
+    private let monitor = NWPathMonitor()
+    
+    private(set) var isConnected = true
+    
+    func startMonitoring() {
+        monitor.pathUpdateHandler = { [weak self] path in
+            guard let self else { return }
+            
+            if path.status == .satisfied {
+                isConnected = true
+            } else {
+                isConnected = false
+            }
+        }
+        monitor.start(queue: queue)
+    }
+    
+    func stopMonitoring() {
+        monitor.cancel()
+    }
+    
     func callRequest<T: Decodable> (url: Router, type: T.Type = T.self) -> Single<Result<T, APIError>> {
-        return Single.create { observer in
+        return Single.create { [weak self] observer in
+            guard let self else {
+                observer(.success(.failure(.unknown)))
+                return Disposables.create()
+            }
+            guard isConnected else {
+                observer(.success(.failure(.network)))
+                return Disposables.create()
+            }
+            
             AF.request(url).responseDecodable(of: type) { response in
                 switch response.result {
                 case .success(let value):
                     observer(.success(.success(value)))
                 case .failure:
-                    // TODO: 에러 처리
-                    observer(.success(.failure(APIError.unknown)))
+                    if let data = response.data, let errorResult = try? JSONDecoder().decode(APIErrorResult.self, from: data) {
+                        observer(.success(.failure(.some(message: errorResult.message))))
+                    } else {
+                        observer(.success(.failure(APIError.unknown)))
+                    }
                 }
             }
             return Disposables.create()
