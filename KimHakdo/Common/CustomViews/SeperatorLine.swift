@@ -22,8 +22,9 @@ final class SeperatorLine: UIView {
     
     private func setup() {
         backgroundColor = .opaqueSeparator
+        alpha = 0.6
         snp.makeConstraints { make in
-            make.height.equalTo(0.5)
+            make.height.equalTo(0.7)
         }
     }
 }

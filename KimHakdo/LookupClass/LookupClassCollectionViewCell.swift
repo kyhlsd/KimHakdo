@@ -91,7 +91,7 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<String> {
     
     override func setupLayout() {
         imageView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(AppPadding.verticalPadding / 2)
+            make.top.equalToSuperview().offset(AppPadding.verticalInset)
             make.horizontalEdges.equalToSuperview()
         }
         
@@ -134,7 +134,7 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<String> {
         }
         
         separatorLine.snp.makeConstraints { make in
-            make.top.equalTo(priceLabel.snp.bottom).offset(AppPadding.verticalPadding / 2)
+            make.top.equalTo(priceLabel.snp.bottom).offset(AppPadding.verticalInset)
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalToSuperview()
         }

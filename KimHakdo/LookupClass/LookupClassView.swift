@@ -51,7 +51,7 @@ final class LookupClassView: BaseView {
     let classCollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.sectionInset = UIEdgeInsets(top: AppPadding.verticalPadding / 2, left: AppPadding.horizontalPadding, bottom: AppPadding.verticalPadding / 2, right: AppPadding.horizontalPadding)
+        layout.sectionInset = UIEdgeInsets(top: AppPadding.verticalInset, left: AppPadding.horizontalPadding, bottom: AppPadding.verticalInset, right: AppPadding.horizontalPadding)
         layout.itemSize = CGSize(width: Constants.deviceWidth - AppPadding.horizontalPadding * 2, height: 240)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.register(cellClass: LookupClassCollectionViewCell.self)

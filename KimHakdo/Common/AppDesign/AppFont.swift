@@ -14,4 +14,5 @@ enum AppFont {
     static let caption = UIFont.systemFont(ofSize: 12, weight: .regular)
     static let accent = UIFont.systemFont(ofSize: 14, weight: .bold)
     static let button = UIFont.systemFont(ofSize: 16, weight: .semibold)
+    static let navTitle = UIFont.systemFont(ofSize: 17, weight: .bold)
 }

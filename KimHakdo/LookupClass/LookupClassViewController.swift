@@ -45,7 +45,6 @@ final class LookupClassViewController: UIViewController, BaseViewController {
     }
     
     private func setNavItem() {
-        navigationItem.titleView?.tintColor = .accent
-        navigationItem.title = "클래스 조회"
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: NavTitleLabel(title: "클래스 조회"))
     }
 }
