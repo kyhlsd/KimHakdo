@@ -30,8 +30,8 @@ final class LoginViewController: UIViewController, BaseViewController {
 
     func bind() {
         let input = LoginViewModel.Input(
-            emailText: mainView.emailTextField.rx.text,
-            passwordText: mainView.passwordTextField.rx.text,
+            email: mainView.emailTextField.rx.text,
+            password: mainView.passwordTextField.rx.text,
             buttonTap: mainView.loginButton.rx.tap
         )
         
