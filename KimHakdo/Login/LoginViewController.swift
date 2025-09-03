@@ -56,5 +56,23 @@ final class LoginViewController: UIViewController, BaseViewController {
             .distinctUntilChanged()
             .bind(to: mainView.warningLabel.rx.text)
             .disposed(by: disposeBag)
+        
+        output.convertToLookupVC
+            .bind(with: self) { owner, _ in
+                owner.convertToLookupVC()
+            }
+            .disposed(by: disposeBag)
+    }
+    
+    private func convertToLookupVC() {
+        guard let _ = UserDefaultHelper.token else { return }
+        
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let sceneDelegate = windowScene.delegate as? SceneDelegate,
+              let window = sceneDelegate.window else { return }
+        
+        UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve) {
+            window.rootViewController = LookupClassViewController()
+        }
     }
 }

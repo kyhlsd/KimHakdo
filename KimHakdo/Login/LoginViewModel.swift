@@ -11,26 +11,6 @@ import RxCocoa
 
 final class LoginViewModel: BaseViewModel {
     
-    enum LoginInputError: LocalizedError {
-        case invalidEmail
-        case invalidPasswordRange(min: Int, max: Int)
-        case empty
-        case unknown
-        
-        var errorDescription: String? {
-            switch self {
-            case .invalidEmail:
-                return "@와 .com, 사이에 1자 이상의 문자를 포함해주세요."
-            case .invalidPasswordRange(let min, let max):
-                return "비밀번호는 \(min)글자 이상 \(max)글자 미만으로 설정해주세요."
-            case .empty:
-                return "이메일과 비밀번호를 입력해주세요."
-            case .unknown:
-                return "알 수 없는 에러가 발생했습니다."
-            }
-        }
-    }
-    
     struct Input {
         let email: ControlProperty<String?>
         let password: ControlProperty<String?>
@@ -41,6 +21,7 @@ final class LoginViewModel: BaseViewModel {
         let buttonEnabled: BehaviorRelay<Bool>
         let firstResponder: Observable<Void>
         let warningText: PublishRelay<String>
+        let convertToLookupVC: PublishRelay<Void>
     }
     
     private let disposeBag = DisposeBag()
@@ -49,16 +30,18 @@ final class LoginViewModel: BaseViewModel {
         let buttonEnabled = BehaviorRelay(value: false)
         let firstResponder = Observable.just(())
         let warningText = PublishRelay<String>()
+        let convertToLookupVC = PublishRelay<Void>()
         
         let email = input.email.orEmpty
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .distinctUntilChanged()
-            
         let password = input.password.orEmpty
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .distinctUntilChanged()
+        let inputTexts = Observable.combineLatest(email, password)
+            .share()
         
-        Observable.combineLatest(email, password)
+        inputTexts
             .flatMap { [weak self] texts in
                 guard let self else {
                     return Single<Result<Void, LoginInputError>>.just(.failure(.unknown))
@@ -78,16 +61,33 @@ final class LoginViewModel: BaseViewModel {
             .disposed(by: disposeBag)
         
         input.buttonTap
-            .bind {
-                print("buttonTap")
+            .throttle(.seconds(1), scheduler: MainScheduler.instance)
+            .withLatestFrom(inputTexts)
+            .flatMap { (email, password) in
+                NetworkManager.shared.callRequest(url: .login(email: email, password: password), type: LoginResult.self)
+            }
+            .bind(with: self) { owner, result in
+                switch result {
+                case .success(let value):
+                    owner.saveToken(token: value.accessToken)
+                    convertToLookupVC.accept(())
+                case .failure(let error):
+                    // TODO: 에러 처리
+                    print(error)
+                }
             }
             .disposed(by: disposeBag)
         
         return Output(
             buttonEnabled: buttonEnabled,
             firstResponder: firstResponder,
-            warningText: warningText
+            warningText: warningText,
+            convertToLookupVC: convertToLookupVC
         )
+    }
+    
+    private func saveToken(token: String) {
+        UserDefaultHelper.token = token
     }
     
     private func validateTexts(texts: (String, String)) -> Single<Result<Void, LoginInputError>> {
