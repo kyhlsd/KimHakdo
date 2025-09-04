@@ -33,9 +33,6 @@ final class LookupClassView: BaseView {
     
     let sortButton = {
         var config = UIButton.Configuration.plain()
-        var titleContainer = AttributeContainer()
-        titleContainer.font = AppFont.accent
-        config.attributedTitle = AttributedString("최신순", attributes: titleContainer)
         config.image = .sort
         config.imagePlacement = .trailing
         config.imagePadding = 4
@@ -58,6 +55,16 @@ final class LookupClassView: BaseView {
         collectionView.backgroundColor = .clear
         return collectionView
     }()
+    
+    private let titleContainer = {
+        var container = AttributeContainer()
+        container.font = AppFont.accent
+        return container
+    }()
+    
+    func setSortButtonTitle(title: String) {
+        sortButton.configuration?.attributedTitle = AttributedString(title, attributes: titleContainer)
+    }
     
     override func setupView() {
         backgroundColor = .background
