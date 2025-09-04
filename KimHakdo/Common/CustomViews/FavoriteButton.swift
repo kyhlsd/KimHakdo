@@ -6,28 +6,21 @@
 //
 
 import UIKit
-import SnapKit
 
 final class FavoriteButton: UIButton {
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setup()
-    }
-    
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
     
     func setStatus(isFavorited: Bool) {
-        setImage(isFavorited ? .likeButtonFill : .likeButton, for: .normal)
+        let image: UIImage = isFavorited ? .likeButtonFill : .likeButton
+        let config = UIImage.SymbolConfiguration(scale: .large)
+        let resized = image.applyingSymbolConfiguration(config)
+        setImage(resized, for: .normal)
     }
     
-    private func setup() {
-        snp.makeConstraints { make in
-            make.size.equalTo(24)
-        }
+    func setStatusWithBorder(isFavorited: Bool) {
+        let image = UIImage(systemName: isFavorited ? "heart.fill" : "heart")
+        tintColor = isFavorited ? .point : .border
+        let config = UIImage.SymbolConfiguration(scale: .large)
+        let resized = image?.applyingSymbolConfiguration(config)
+        setImage(resized, for: .normal)
     }
-    
 }

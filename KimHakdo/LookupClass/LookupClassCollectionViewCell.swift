@@ -136,6 +136,7 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         favoriteButton.snp.makeConstraints { make in
             make.top.equalTo(imageView).offset(8)
             make.trailing.equalTo(imageView).offset(-8)
+            make.size.equalTo(24)
         }
         
         titleLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)

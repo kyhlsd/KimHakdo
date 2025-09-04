@@ -21,7 +21,7 @@ enum ImageDownloadHelper {
         }
         
         let processor = DownsamplingImageProcessor(
-            size: CGSize(width: Constants.deviceWidth, height: Constants.deviceWidth * 0.75)
+            size: CGSize(width: Constants.deviceWidth, height: Constants.deviceWidth * 0.6)
         )
         
         let options: KingfisherOptionsInfo = [
