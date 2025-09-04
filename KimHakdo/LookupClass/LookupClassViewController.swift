@@ -26,8 +26,9 @@ final class LookupClassViewController: UIViewController, BaseViewController {
     }
 
     func bind() {
+        let callRequest = PublishRelay<Void>()
         let input = LookupClassViewModel.Input(
-            viewDidLoad: Observable.just(()),
+            callRequest: callRequest,
             selectCategory: mainView.categoryCollectionView.rx.modelSelected((ClassCategory, Bool).self),
             sortButtonTap: mainView.sortButton.rx.tap
         )
@@ -45,6 +46,11 @@ final class LookupClassViewController: UIViewController, BaseViewController {
             }
             .disposed(by: disposeBag)
         
+        output.countText
+            .distinctUntilChanged()
+            .bind(to: mainView.countLabel.rx.text)
+            .disposed(by: disposeBag)
+        
         output.scrollToTop
             .bind(with: self) { owner, _ in
                 if owner.mainView.classCollectionView.visibleCells.isEmpty { return }
@@ -58,6 +64,14 @@ final class LookupClassViewController: UIViewController, BaseViewController {
                 owner.mainView.setSortButtonTitle(title: text)
             }
             .disposed(by: disposeBag)
+        
+        output.errorAlert
+            .bind(with: self) { owner, message in
+                owner.presentDefaultAlert(title: "데이터 불러오기 실패", message: message)
+            }
+            .disposed(by: disposeBag)
+        
+        callRequest.accept(())
     }
     
     private func setNavItem() {

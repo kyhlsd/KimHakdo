@@ -27,7 +27,6 @@ final class LookupClassView: BaseView {
         let label = UILabel()
         label.textColor = .black
         label.font = AppFont.accent
-        label.text = "923개"
         return label
     }()
     

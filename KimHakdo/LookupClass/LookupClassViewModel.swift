@@ -14,7 +14,7 @@ final class LookupClassViewModel: BaseViewModel {
     private let disposeBag = DisposeBag()
     
     struct Input {
-        let viewDidLoad: Observable<Void>
+        let callRequest: PublishRelay<Void>
         let selectCategory: ControlEvent<(ClassCategory, Bool)>
         let sortButtonTap: ControlEvent<Void>
     }
@@ -22,19 +22,21 @@ final class LookupClassViewModel: BaseViewModel {
     struct Output {
         let categories: BehaviorRelay<[(ClassCategory, Bool)]>
         let courses: PublishRelay<[Course]>
+        let countText: BehaviorRelay<String>
         let sortOption: BehaviorRelay<CourseSortOption>
         let scrollToTop: PublishRelay<Void>
+        let errorAlert: PublishRelay<String>
     }
     
     func transform(input: Input) -> Output {
         let categories = BehaviorRelay(value: getInitialCategories())
         let courses = PublishRelay<[Course]>()
-        let callRequest = PublishRelay<Void>()
+        let countText = BehaviorRelay<String>(value: "0개")
+        let sortOption = BehaviorRelay<CourseSortOption>(value: .latest)
         let scrollToTop = PublishRelay<Void>()
+        let errorAlert = PublishRelay<String>()
         
         let totalCourses = PublishRelay<[Course]>()
-        let sortOption = BehaviorRelay<CourseSortOption>(value: .latest)
-        
         let filtered = Observable.combineLatest(totalCourses, categories)
             .flatMap { [weak self] (total, category) in
                 guard let self else {
@@ -53,20 +55,6 @@ final class LookupClassViewModel: BaseViewModel {
             .bind(to: courses)
             .disposed(by: disposeBag)
         
-        callRequest
-            .flatMap { _ in
-                NetworkManager.shared.callRequest(url: .lookupCourses, type: LookupCoursesResult.self)
-            }
-            .bind { result in
-                switch result {
-                case .success(let value):
-                    totalCourses.accept(value.data)
-                case .failure(let error):
-                    print(error)
-                }
-            }
-            .disposed(by: disposeBag)
-        
         courses
             .filter { list in
                 !list.isEmpty
@@ -75,8 +63,25 @@ final class LookupClassViewModel: BaseViewModel {
             .bind(to: scrollToTop)
             .disposed(by: disposeBag)
         
-        input.viewDidLoad
-            .bind(to: callRequest)
+        courses
+            .map {
+                "\(AppFormatter.number.string(from: NSNumber(value: $0.count)) ?? "0")개"
+            }
+            .bind(to: countText)
+            .disposed(by: disposeBag)
+        
+        input.callRequest
+            .flatMap { _ in
+                NetworkManager.shared.callRequest(url: .lookupCourses, type: LookupCoursesResult.self)
+            }
+            .bind { result in
+                switch result {
+                case .success(let value):
+                    totalCourses.accept(value.data)
+                case .failure(let error):
+                    errorAlert.accept(error.localizedDescription)
+                }
+            }
             .disposed(by: disposeBag)
         
         input.selectCategory
@@ -99,8 +104,10 @@ final class LookupClassViewModel: BaseViewModel {
         return Output(
             categories: categories,
             courses: courses,
+            countText: countText,
             sortOption: sortOption,
-            scrollToTop: scrollToTop
+            scrollToTop: scrollToTop,
+            errorAlert: errorAlert
         )
     }
     
