@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 import Kingfisher
 
-final class LookupClassCollectionViewCell: BaseCollectionViewCell<Course> {
+final class LookupClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
     
     private let imageView = {
         let imageView = UIImageView()
@@ -92,7 +92,7 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<Course> {
         salePercentageLabel.text = nil
     }
     
-    override func setData(data: Course) {
+    override func setData(data: ClassResult) {
         let url = try? Router.fetchImage(url: data.imageURL).asURL()
         imageView.kf.setImage(with: url, options: ImageDownloadHelper.options)
         

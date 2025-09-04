@@ -1,5 +1,5 @@
 //
-//  CourseSortOption.swift
+//  ClassSortOption.swift
 //  KimHakdo
 //
 //  Created by 김영훈 on 9/4/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum CourseSortOption: String, CaseIterable {
+enum ClassSortOption: String, CaseIterable {
     case latest = "최신순"
     case highPrice = "금액 높은 순"
     

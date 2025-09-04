@@ -10,7 +10,7 @@ import Alamofire
 
 enum Router: URLRequestConvertible, URLConvertible {
     case login(email: String, password: String)
-    case lookupCourses
+    case lookupClass
     case fetchImage(url: String)
     
     var baseURL: String {
@@ -21,7 +21,7 @@ enum Router: URLRequestConvertible, URLConvertible {
         switch self {
         case .login:
             return .post
-        case .lookupCourses, .fetchImage:
+        case .lookupClass, .fetchImage:
             return .get
         }
     }
@@ -34,7 +34,7 @@ enum Router: URLRequestConvertible, URLConvertible {
         switch self {
         case .login:
             return "/\(version)/users/login"
-        case .lookupCourses:
+        case .lookupClass:
             return "/\(version)/courses"
         case .fetchImage(let url):
             return "/\(version)\(url)"
@@ -48,14 +48,14 @@ enum Router: URLRequestConvertible, URLConvertible {
                 "email": email,
                 "password": password
             ]
-        case .lookupCourses, .fetchImage:
+        case .lookupClass, .fetchImage:
             return nil
         }
     }
     
     var queryItems: [URLQueryItem] {
         switch self {
-        case .login, .lookupCourses, .fetchImage:
+        case .login, .lookupClass, .fetchImage:
             return []
         }
     }
@@ -67,7 +67,7 @@ enum Router: URLRequestConvertible, URLConvertible {
                 .contentType,
                 .sesacKey
             ])
-        case .lookupCourses, .fetchImage:
+        case .lookupClass, .fetchImage:
             return Headers.asHTTPHeaders([
                 .authorization,
                 .sesacKey

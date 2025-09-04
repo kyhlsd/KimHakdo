@@ -21,26 +21,26 @@ final class LookupClassViewModel: BaseViewModel {
     
     struct Output {
         let categories: BehaviorRelay<[(ClassCategory, Bool)]>
-        let courses: PublishRelay<[Course]>
+        let classList: PublishRelay<[ClassResult]>
         let countText: BehaviorRelay<String>
-        let sortOption: BehaviorRelay<CourseSortOption>
+        let sortOption: BehaviorRelay<ClassSortOption>
         let scrollToTop: PublishRelay<Void>
         let errorAlert: PublishRelay<String>
     }
     
     func transform(input: Input) -> Output {
         let categories = BehaviorRelay(value: getInitialCategories())
-        let courses = PublishRelay<[Course]>()
+        let classList = PublishRelay<[ClassResult]>()
         let countText = BehaviorRelay<String>(value: "0개")
-        let sortOption = BehaviorRelay<CourseSortOption>(value: .latest)
+        let sortOption = BehaviorRelay<ClassSortOption>(value: .latest)
         let scrollToTop = PublishRelay<Void>()
         let errorAlert = PublishRelay<String>()
         
-        let totalCourses = PublishRelay<[Course]>()
-        let filtered = Observable.combineLatest(totalCourses, categories)
+        let totalClass = PublishRelay<[ClassResult]>()
+        let filtered = Observable.combineLatest(totalClass, categories)
             .flatMap { [weak self] (total, category) in
                 guard let self else {
-                    return Observable.just([Course]())
+                    return Observable.just([ClassResult]())
                 }
                 return self.filterByCategory(total: total, category: category)
             }
@@ -48,14 +48,14 @@ final class LookupClassViewModel: BaseViewModel {
         Observable.combineLatest(filtered, sortOption)
             .flatMap { [weak self] (filtered, option) in
                 guard let self else {
-                    return Observable.just([Course]())
+                    return Observable.just([ClassResult]())
                 }
-                return self.sortCourses(list: filtered, option: option)
+                return self.sortClassList(list: filtered, option: option)
             }
-            .bind(to: courses)
+            .bind(to: classList)
             .disposed(by: disposeBag)
         
-        courses
+        classList
             .filter { list in
                 !list.isEmpty
             }
@@ -63,7 +63,7 @@ final class LookupClassViewModel: BaseViewModel {
             .bind(to: scrollToTop)
             .disposed(by: disposeBag)
         
-        courses
+        classList
             .map {
                 "\(AppFormatter.number.string(from: NSNumber(value: $0.count)) ?? "0")개"
             }
@@ -72,12 +72,12 @@ final class LookupClassViewModel: BaseViewModel {
         
         input.callRequest
             .flatMap { _ in
-                NetworkManager.shared.callRequest(url: .lookupCourses, type: LookupCoursesResult.self)
+                NetworkManager.shared.callRequest(url: .lookupClass, type: LookupClassResult.self)
             }
             .bind { result in
                 switch result {
                 case .success(let value):
-                    totalCourses.accept(value.data)
+                    totalClass.accept(value.data)
                 case .failure(let error):
                     errorAlert.accept(error.localizedDescription)
                 }
@@ -103,7 +103,7 @@ final class LookupClassViewModel: BaseViewModel {
         
         return Output(
             categories: categories,
-            courses: courses,
+            classList: classList,
             countText: countText,
             sortOption: sortOption,
             scrollToTop: scrollToTop,
@@ -111,9 +111,9 @@ final class LookupClassViewModel: BaseViewModel {
         )
     }
     
-    private func sortCourses(list: [Course], option: CourseSortOption) -> Observable<[Course]> {
-        return Observable<[Course]>.create { observer in
-            let sorted: [Course]
+    private func sortClassList(list: [ClassResult], option: ClassSortOption) -> Observable<[ClassResult]> {
+        return Observable<[ClassResult]>.create { observer in
+            let sorted: [ClassResult]
             switch option {
             case .latest:
                 sorted = list.sorted {
@@ -136,8 +136,8 @@ final class LookupClassViewModel: BaseViewModel {
         }
     }
     
-    private func filterByCategory(total: [Course], category: [(ClassCategory, Bool)]) -> Observable<[Course]> {
-        return Observable<[Course]>.create { observer in
+    private func filterByCategory(total: [ClassResult], category: [(ClassCategory, Bool)]) -> Observable<[ClassResult]> {
+        return Observable<[ClassResult]>.create { observer in
             if category[0].1 {
                 observer.onNext(total)
                 observer.onCompleted()
@@ -148,11 +148,11 @@ final class LookupClassViewModel: BaseViewModel {
                 .filter { $0.1 }
                 .map { $0.0 }
             
-            let selectedCourses = total.filter{
+            let selectedClasses = total.filter{
                 selectedCategories.contains($0.category)
             }
             
-            observer.onNext(selectedCourses)
+            observer.onNext(selectedClasses)
             observer.onCompleted()
             return Disposables.create()
         }

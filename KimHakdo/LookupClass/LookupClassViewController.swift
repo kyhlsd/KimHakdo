@@ -40,7 +40,7 @@ final class LookupClassViewController: UIViewController, BaseViewController {
             }
             .disposed(by: disposeBag)
         
-        output.courses
+        output.classList
             .bind(to: mainView.classCollectionView.rx.items(cellIdentifier: LookupClassCollectionViewCell.identifier, cellType: LookupClassCollectionViewCell.self)) { _, element, cell in
                 cell.setData(data: element)
             }
