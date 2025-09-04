@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 import Kingfisher
 
-final class LookupClassCollectionViewCell: BaseCollectionViewCell<String> {
+final class LookupClassCollectionViewCell: BaseCollectionViewCell<Course> {
     
     private let imageView = {
         let imageView = UIImageView()
@@ -21,11 +21,12 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<String> {
         return imageView
     }()
     
+    private let favoriteButton = FavoriteButton()
+    
     private let titleLabel = {
         let label = UILabel()
         label.font = AppFont.subtitle
         label.textColor = .black
-        label.text = "잭잭의 사투리교실"
         return label
     }()
     
@@ -42,7 +43,6 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<String> {
         let label = UILabel()
         label.font = AppFont.caption
         label.textColor = .point
-        label.text = "외국어"
         return label
     }()
     
@@ -50,49 +50,92 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<String> {
         let label = UILabel()
         label.font = AppFont.body
         label.textColor = .border
-        label.text = "표준어는 잠시 접어두고, 잭님이 들려주던 그 정겨운 사투리로 얘기를"
         return label
     }()
     
-    private let priceLabel = {
-        let label = UILabel()
-        label.attributedText = NSAttributedString(string: "1,000,000원", attributes: [
-            .font: AppFont.body,
-            .foregroundColor: UIColor.disabled,
-            .strikethroughStyle:  NSUnderlineStyle.single.rawValue
-        ])
-        return label
+    private let priceStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = AppPadding.horizontalInset
+        return stackView
     }()
+    
+    private let attributes: [NSAttributedString.Key: Any] = [
+        .font: AppFont.body,
+        .foregroundColor: UIColor.disabled,
+        .strikethroughStyle:  NSUnderlineStyle.single.rawValue
+    ]
+    
+    private let priceLabel = UILabel()
     
     private let salePriceLabel = {
         let label = UILabel()
         label.font = AppFont.accent
         label.textColor = .black
-        label.text = "100,000원"
         return label
     }()
     
-    private let saleRatioLabel = {
+    private let salePercentageLabel = {
         let label = UILabel()
         label.font = AppFont.accent
         label.textColor = .point
-        label.text = "90%"
         return label
     }()
     
     private let separatorLine = SeperatorLine()
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imageView.image = nil
+        priceLabel.isHidden = true
+        salePriceLabel.isHidden = true
+        salePercentageLabel.text = nil
+    }
+    
+    override func setData(data: Course) {
+        let url = try? Router.fetchImage(url: data.imageURL).asURL()
+        imageView.kf.setImage(with: url, options: ImageDownloadHelper.options)
+        
+        titleLabel.text = data.title
+        categoryLabel.text = data.category.description
+        descriptionLabel.text = data.description
+        
+        if let price = data.price, let priceString = AppFormatter.number.string(from: NSNumber(value: price)) {
+            priceLabel.attributedText = NSAttributedString(string: priceString, attributes: attributes)
+            priceLabel.isHidden = false
+        } else {
+            priceLabel.isHidden = true
+        }
+        if let salePrice = data.salePrice, let salePriceString = AppFormatter.number.string(from: NSNumber(value: salePrice)) {
+            salePriceLabel.text = salePriceString
+            salePriceLabel.isHidden = false
+        } else {
+            salePriceLabel.isHidden = true
+        }
+        salePercentageLabel.text = data.salePercentage
+        
+        favoriteButton.setStatus(isFavorited: data.isLiked)
+    }
+    
     override func setupHierarchy() {
-        [imageView, titleLabel, descriptionLabel, categoryContainer, priceLabel, salePriceLabel, saleRatioLabel, separatorLine].forEach {
+        [imageView, favoriteButton, titleLabel, descriptionLabel, categoryContainer, priceStackView, separatorLine].forEach {
             contentView.addSubview($0)
         }
         categoryContainer.addSubview(categoryLabel)
+        [priceLabel, salePriceLabel,salePercentageLabel].forEach {
+            priceStackView.addArrangedSubview($0)
+        }
     }
     
     override func setupLayout() {
         imageView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(AppPadding.verticalInset)
             make.horizontalEdges.equalToSuperview()
+        }
+        
+        favoriteButton.snp.makeConstraints { make in
+            make.top.equalTo(imageView).offset(8)
+            make.trailing.equalTo(imageView).offset(-8)
         }
         
         titleLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
@@ -118,23 +161,13 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<String> {
             make.horizontalEdges.equalToSuperview()
         }
         
-        priceLabel.snp.makeConstraints { make in
+        priceStackView.snp.makeConstraints { make in
             make.top.equalTo(descriptionLabel.snp.bottom).offset(AppPadding.verticalInset)
             make.leading.equalToSuperview()
         }
         
-        salePriceLabel.snp.makeConstraints { make in
-            make.verticalEdges.equalTo(priceLabel)
-            make.leading.equalTo(priceLabel.snp.trailing).offset(AppPadding.horizontalInset)
-        }
-        
-        saleRatioLabel.snp.makeConstraints { make in
-            make.verticalEdges.equalTo(priceLabel)
-            make.leading.equalTo(salePriceLabel.snp.trailing).offset(AppPadding.horizontalInset)
-        }
-        
         separatorLine.snp.makeConstraints { make in
-            make.top.equalTo(priceLabel.snp.bottom).offset(AppPadding.verticalInset)
+            make.top.equalTo(priceStackView.snp.bottom).offset(AppPadding.verticalInset)
             make.horizontalEdges.equalToSuperview()
             make.bottom.equalToSuperview()
         }

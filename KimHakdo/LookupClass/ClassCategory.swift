@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum ClassCategory: Int, CaseIterable {
+enum ClassCategory: Int, CaseIterable, Decodable {
     case total = 0
     case development = 101
     case design = 102

@@ -27,6 +27,7 @@ final class LookupClassViewController: UIViewController, BaseViewController {
 
     func bind() {
         let input = LookupClassViewModel.Input(
+            viewDidLoad: Observable.just(()),
             selectCategory: mainView.categoryCollectionView.rx.modelSelected((ClassCategory, Bool).self)
         )
         let output = viewModel.transform(input: input)
@@ -37,9 +38,9 @@ final class LookupClassViewController: UIViewController, BaseViewController {
             }
             .disposed(by: disposeBag)
         
-        Observable.just([1, 2, 3, 4])
+        output.courses
             .bind(to: mainView.classCollectionView.rx.items(cellIdentifier: LookupClassCollectionViewCell.identifier, cellType: LookupClassCollectionViewCell.self)) { _, element, cell in
-                
+                cell.setData(data: element)
             }
             .disposed(by: disposeBag)
     }

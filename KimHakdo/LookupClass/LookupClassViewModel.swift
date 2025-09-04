@@ -14,15 +14,37 @@ final class LookupClassViewModel: BaseViewModel {
     private let disposeBag = DisposeBag()
     
     struct Input {
+        let viewDidLoad: Observable<Void>
         let selectCategory: ControlEvent<(ClassCategory, Bool)>
     }
     
     struct Output {
         let categories: BehaviorRelay<[(ClassCategory, Bool)]>
+        let courses: PublishRelay<[Course]>
     }
     
     func transform(input: Input) -> Output {
         let categories = BehaviorRelay(value: getInitialCategories())
+        let courses = PublishRelay<[Course]>()
+        let callRequest = PublishRelay<Void>()
+        
+        callRequest
+            .flatMap { _ in
+                NetworkManager.shared.callRequest(url: .lookupCourses, type: LookupCoursesResult.self)
+            }
+            .bind { result in
+                switch result {
+                case .success(let value):
+                    courses.accept(value.data)
+                case .failure(let error):
+                    print(error)
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        input.viewDidLoad
+            .bind(to: callRequest)
+            .disposed(by: disposeBag)
         
         input.selectCategory
             .distinctUntilChanged { ($0.0 == $1.0) && ($0.1 == $1.1) }
@@ -34,7 +56,8 @@ final class LookupClassViewModel: BaseViewModel {
             .disposed(by: disposeBag)
         
         return Output(
-            categories: categories
+            categories: categories,
+            courses: courses
         )
     }
     

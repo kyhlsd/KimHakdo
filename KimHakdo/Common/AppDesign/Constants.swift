@@ -14,4 +14,11 @@ enum Constants {
               let window = sceneDelegate.window else { return 0 }
         return window.screen.bounds.width
     }()
+    
+    static let deviceScale: CGFloat = {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let sceneDelegate = windowScene.delegate as? SceneDelegate,
+              let window = sceneDelegate.window else { return 0 }
+        return window.screen.scale
+    }()
 }
