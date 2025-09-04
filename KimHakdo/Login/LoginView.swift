@@ -53,7 +53,7 @@ final class LoginView: BaseView {
     
     let warningLabel = {
         let label = UILabel()
-        label.font = AppFont.warning
+        label.font = AppFont.accent
         label.textColor = .point
         label.textAlignment = .center
         return label

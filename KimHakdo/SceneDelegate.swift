@@ -17,7 +17,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         window = UIWindow(windowScene: scene)
         
-        window?.rootViewController = LoginViewController()
+        if let _ = UserDefaultHelper.token {
+            let lookupNav = CustomNavigationController(rootViewController: LookupClassViewController())
+            lookupNav.setTabBarItem(title: "카테고리", image: UIImage(systemName: "house.fill"), tag: 0)
+            
+            let tab = UITabBarController()
+            tab.viewControllers = [lookupNav]
+            window?.rootViewController = tab
+        } else {
+            window?.rootViewController = LoginViewController()
+        }
+        
         window?.makeKeyAndVisible()
     }
 

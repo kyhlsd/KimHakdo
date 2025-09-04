@@ -8,8 +8,8 @@
 import Foundation
 
 enum AppPadding {
-    static let verticalPadding = 20
-    static let verticalInset = 8
-    static let horizontalPadding = 20
-    static let horizontalInset = 12
+    static let verticalPadding: CGFloat = 12
+    static let verticalInset: CGFloat = 8
+    static let horizontalPadding: CGFloat = 20
+    static let horizontalInset: CGFloat = 8
 }
