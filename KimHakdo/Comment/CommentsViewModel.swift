@@ -29,7 +29,7 @@ final class CommentsViewModel: BaseViewModel {
         let commentDataList: BehaviorRelay<[(Comment, Bool)]>
         let navTitle: Observable<String>
         let presentEditActionSheet: PublishRelay<String>
-        let presentPostCommentVC: PublishRelay<ClassCoreInfo>
+        let pushPostCommentVC: PublishRelay<ClassCoreInfo>
     }
     
     func transform(input: Input) -> Output {
@@ -41,7 +41,7 @@ final class CommentsViewModel: BaseViewModel {
         let commentDataList = BehaviorRelay(value: commentData)
         let navTitle = Observable.just(self.classCoreInfo.title)
         let presentEditActionSheet = PublishRelay<String>()
-        let presentPostCommentVC = PublishRelay<ClassCoreInfo>()
+        let pushPostCommentVC = PublishRelay<ClassCoreInfo>()
         
         input.moreButtonTap
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
@@ -51,14 +51,14 @@ final class CommentsViewModel: BaseViewModel {
         input.navItemTap?
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
             .compactMap { [weak self] _ in self?.classCoreInfo }
-            .bind(to: presentPostCommentVC)
+            .bind(to: pushPostCommentVC)
             .disposed(by: disposeBag)
         
         return Output(
             commentDataList: commentDataList,
             navTitle: navTitle,
             presentEditActionSheet: presentEditActionSheet,
-            presentPostCommentVC: presentPostCommentVC
+            pushPostCommentVC: pushPostCommentVC
         )
     }
     

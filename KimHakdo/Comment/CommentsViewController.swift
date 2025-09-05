@@ -69,9 +69,9 @@ final class CommentsViewController: UIViewController, BaseViewController {
             }
             .disposed(by: disposeBag)
         
-        output.presentPostCommentVC
+        output.pushPostCommentVC
             .bind(with: self) { owner, info in
-                owner.presentPostCommentVC(info: info)
+                owner.navigationController?.pushViewController(PostCommentViewController(), animated: true)
             }
             .disposed(by: disposeBag)
     }
@@ -91,10 +91,5 @@ final class CommentsViewController: UIViewController, BaseViewController {
         actionSheet.addAction(UIAlertAction(title: "취소", style: .cancel))
         present(actionSheet, animated: true)
     }
-    
-    private func presentPostCommentVC(info: ClassCoreInfo) {
-        let vc = PostCommentViewController()
-        vc.modalPresentationStyle = .fullScreen
-        present(vc, animated: true)
-    }
+
 }

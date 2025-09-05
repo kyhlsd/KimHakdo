@@ -74,6 +74,13 @@ final class ClassDetailView: BaseView {
         textView.isEditable = false
         textView.textContainerInset = .zero
         textView.textContainer.lineFragmentPadding = 0
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 8
+        textView.typingAttributes = [
+            .paragraphStyle: paragraphStyle,
+            .font: AppFont.body,
+            .foregroundColor: UIColor.darkGray
+        ]
         return textView
     }()
     
@@ -83,18 +90,6 @@ final class ClassDetailView: BaseView {
     
     override func draw(_ rect: CGRect) {
         profileImageView.layer.cornerRadius = profileImageView.frame.height / 2
-    }
-    
-    func setDescriptionText(text: String) {
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 8
-        let attributedString = NSMutableAttributedString(string: text)
-        attributedString.addAttributes([
-            .paragraphStyle: paragraphStyle,
-            .font: AppFont.body,
-            .foregroundColor: UIColor.darkGray
-        ], range: NSRange(location: 0, length: text.count))
-        descriptionTextView.attributedText = attributedString
     }
     
     func setProfileImage(image: String?) {

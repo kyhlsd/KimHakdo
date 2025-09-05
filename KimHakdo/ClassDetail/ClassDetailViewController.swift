@@ -79,9 +79,7 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
             .disposed(by: disposeBag)
         
         output.description
-            .bind(with: self) { owner, text in
-                owner.mainView.setDescriptionText(text: text)
-            }
+            .bind(to: mainView.descriptionTextView.rx.text)
             .disposed(by: disposeBag)
         
         output.isFavorited
