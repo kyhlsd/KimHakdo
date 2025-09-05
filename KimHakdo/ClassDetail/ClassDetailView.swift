@@ -29,14 +29,12 @@ final class ClassDetailView: BaseView {
         imageView.kf.indicatorType = .activity
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleToFill
-        imageView.image = .noProfile
         return imageView
     }()
     let nicknameLabel = {
         let label = UILabel()
         label.font = AppFont.accent
         label.textColor = .black
-        label.text = "참새는 짹짹"
         return label
     }()
     

@@ -112,8 +112,9 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
             .disposed(by: disposeBag)
         
         output.pushCommentVC
-            .bind(with: self) { owner, comments in
-                owner.navigationController?.pushViewController(CommentsViewController(), animated: true)
+            .bind(with: self) { owner, data in
+                let (comments, navTitle) = data
+                owner.navigationController?.pushViewController(CommentsViewController(comments: comments, navTitle: navTitle), animated: true)
             }
             .disposed(by: disposeBag)
         

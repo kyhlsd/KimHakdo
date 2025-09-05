@@ -36,7 +36,7 @@ final class ClassDetailViewModel: BaseViewModel {
         let isFavorited: PublishRelay<Bool>
         let commentsButtonTitle: BehaviorRelay<String>
         let commentsButtonEnabled: BehaviorRelay<Bool>
-        let pushCommentVC: PublishRelay<[Comment]>
+        let pushCommentVC: PublishRelay<([Comment], String)>
         let errorAlert: PublishRelay<String>
     }
     
@@ -52,7 +52,7 @@ final class ClassDetailViewModel: BaseViewModel {
         let isFavorited = PublishRelay<Bool>()
         let commentsButtonTitle = BehaviorRelay<String>(value: "댓글보기 (0)")
         let commentsButtonEnabled = BehaviorRelay<Bool>(value: false)
-        let pushCommentVC = PublishRelay<[Comment]>()
+        let pushCommentVC = PublishRelay<([Comment], String)>()
         let errorAlert = PublishRelay<String>()
                 
         let comments = PublishRelay<[Comment]>()
@@ -113,7 +113,7 @@ final class ClassDetailViewModel: BaseViewModel {
         
         input.commentsButtonTap
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
-            .withLatestFrom(comments)
+            .withLatestFrom(Observable.combineLatest(comments, navTitle))
             .bind(to: pushCommentVC)
             .disposed(by: disposeBag)
         
