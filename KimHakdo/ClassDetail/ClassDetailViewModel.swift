@@ -36,7 +36,7 @@ final class ClassDetailViewModel: BaseViewModel {
         let isFavorited: PublishRelay<Bool>
         let commentsButtonTitle: BehaviorRelay<String>
         let commentsButtonEnabled: BehaviorRelay<Bool>
-        let pushCommentVC: PublishRelay<([Comment], String)>
+        let pushCommentVC: PublishRelay<([Comment], ClassCoreInfo)>
         let errorAlert: PublishRelay<String>
     }
     
@@ -52,10 +52,11 @@ final class ClassDetailViewModel: BaseViewModel {
         let isFavorited = PublishRelay<Bool>()
         let commentsButtonTitle = BehaviorRelay<String>(value: "댓글보기 (0)")
         let commentsButtonEnabled = BehaviorRelay<Bool>(value: false)
-        let pushCommentVC = PublishRelay<([Comment], String)>()
+        let pushCommentVC = PublishRelay<([Comment], ClassCoreInfo)>()
         let errorAlert = PublishRelay<String>()
                 
         let comments = PublishRelay<[Comment]>()
+        let classCoreInfo = PublishRelay<ClassCoreInfo>()
         
         input.callRequestForDetail
             .flatMap { [weak self] in
@@ -76,6 +77,7 @@ final class ClassDetailViewModel: BaseViewModel {
                     capacity.accept(owner.capacityToString(capacity: value.capacity))
                     description.accept(value.description)
                     isFavorited.accept(value.isLiked)
+                    classCoreInfo.accept(ClassCoreInfo(classId: value.classId, title: value.title, category: value.category))
                 case .failure(let error):
                     errorAlert.accept(error.localizedDescription)
                 }
@@ -113,7 +115,7 @@ final class ClassDetailViewModel: BaseViewModel {
         
         input.commentsButtonTap
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
-            .withLatestFrom(Observable.combineLatest(comments, navTitle))
+            .withLatestFrom(Observable.combineLatest(comments, classCoreInfo))
             .bind(to: pushCommentVC)
             .disposed(by: disposeBag)
         

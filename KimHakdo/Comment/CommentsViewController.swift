@@ -15,8 +15,8 @@ final class CommentsViewController: UIViewController, BaseViewController {
     let viewModel: CommentsViewModel
     private let disposeBag = DisposeBag()
     
-    init(comments: [Comment], navTitle: String) {
-        self.viewModel = CommentsViewModel(comments: comments, navTitle: navTitle)
+    init(comments: [Comment], classCoreInfo: ClassCoreInfo) {
+        self.viewModel = CommentsViewModel(comments: comments, classCoreInfo: classCoreInfo)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -39,7 +39,8 @@ final class CommentsViewController: UIViewController, BaseViewController {
         let moreButtonTap = PublishRelay<String>()
         
         let input = CommentsViewModel.Input(
-            moreButtonTap: moreButtonTap
+            moreButtonTap: moreButtonTap,
+            navItemTap: navigationItem.rightBarButtonItem?.rx.tap
         )
         let output = viewModel.transform(input: input)
         
@@ -48,12 +49,11 @@ final class CommentsViewController: UIViewController, BaseViewController {
                 let (comment, isMine) = element
                 if isMine {
                     let cell = tableView.dequeueReusableCell(for: IndexPath(row: row, section: 0), cellClass: MyCommentTableViewCell.self)
-                    cell.setData(data: comment)
+                    cell.setData(data: comment, to: moreButtonTap)
                     return cell
                 } else {
-                    // TODO: Test하고나서 돌려놓기
-                    let cell = tableView.dequeueReusableCell(for: IndexPath(row: row, section: 0), cellClass: MyCommentTableViewCell.self)
-                    cell.setData(data: comment, to: moreButtonTap)
+                    let cell = tableView.dequeueReusableCell(for: IndexPath(row: row, section: 0), cellClass: CommentTableViewCell.self)
+                    cell.setData(data: comment)
                     return cell
                 }
             }
@@ -68,10 +68,16 @@ final class CommentsViewController: UIViewController, BaseViewController {
                 owner.presentEditActionSheet(commentId: commentId)
             }
             .disposed(by: disposeBag)
+        
+        output.presentPostCommentVC
+            .bind(with: self) { owner, info in
+                owner.presentPostCommentVC(info: info)
+            }
+            .disposed(by: disposeBag)
     }
     
     private func setupNavItem() {
-        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: .comment, style: .done, target: self, action: nil)
     }
     
     private func presentEditActionSheet(commentId: String) {
@@ -84,5 +90,11 @@ final class CommentsViewController: UIViewController, BaseViewController {
         }))
         actionSheet.addAction(UIAlertAction(title: "취소", style: .cancel))
         present(actionSheet, animated: true)
+    }
+    
+    private func presentPostCommentVC(info: ClassCoreInfo) {
+        let vc = PostCommentViewController()
+        vc.modalPresentationStyle = .fullScreen
+        present(vc, animated: true)
     }
 }

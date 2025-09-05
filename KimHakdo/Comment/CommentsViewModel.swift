@@ -12,22 +12,24 @@ import RxCocoa
 final class CommentsViewModel: BaseViewModel {
     
     private let comments: [Comment]
-    private let navTitle: String
+    private let classCoreInfo: ClassCoreInfo
     private let disposeBag = DisposeBag()
     
-    init(comments: [Comment], navTitle: String) {
+    init(comments: [Comment], classCoreInfo: ClassCoreInfo) {
         self.comments = comments
-        self.navTitle = navTitle
+        self.classCoreInfo = classCoreInfo
     }
     
     struct Input {
         let moreButtonTap: PublishRelay<String>
+        let navItemTap: ControlEvent<Void>?
     }
     
     struct Output {
         let commentDataList: BehaviorRelay<[(Comment, Bool)]>
         let navTitle: Observable<String>
         let presentEditActionSheet: PublishRelay<String>
+        let presentPostCommentVC: PublishRelay<ClassCoreInfo>
     }
     
     func transform(input: Input) -> Output {
@@ -37,18 +39,26 @@ final class CommentsViewModel: BaseViewModel {
                 return (comment, isMine(id: comment.creator.userId))
             }
         let commentDataList = BehaviorRelay(value: commentData)
-        let navTitle = Observable.just(self.navTitle)
+        let navTitle = Observable.just(self.classCoreInfo.title)
         let presentEditActionSheet = PublishRelay<String>()
+        let presentPostCommentVC = PublishRelay<ClassCoreInfo>()
         
         input.moreButtonTap
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
             .bind(to: presentEditActionSheet)
             .disposed(by: disposeBag)
         
+        input.navItemTap?
+            .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
+            .compactMap { [weak self] _ in self?.classCoreInfo }
+            .bind(to: presentPostCommentVC)
+            .disposed(by: disposeBag)
+        
         return Output(
             commentDataList: commentDataList,
             navTitle: navTitle,
-            presentEditActionSheet: presentEditActionSheet
+            presentEditActionSheet: presentEditActionSheet,
+            presentPostCommentVC: presentPostCommentVC
         )
     }
     
