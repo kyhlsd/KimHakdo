@@ -78,7 +78,7 @@ final class CommentsViewController: UIViewController, BaseViewController {
         
         output.pushPostCommentVC
             .bind(with: self) { owner, info in
-                owner.navigationController?.pushViewController(PostCommentViewController(), animated: true)
+                owner.navigationController?.pushViewController(PostCommentViewController(classInfo: info), animated: true)
             }
             .disposed(by: disposeBag)
     }

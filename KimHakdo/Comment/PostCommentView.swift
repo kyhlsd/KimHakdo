@@ -43,9 +43,6 @@ final class PostCommentView: BaseView {
     
     override func setupView() {
         backgroundColor = .background
-        categoryLabel.text = "외국어"
-        titleLabel.text = "잭잭의 사투리 교실"
-        countLabel.text = "0 / 300"
     }
     
     override func setupHierarchy() {
