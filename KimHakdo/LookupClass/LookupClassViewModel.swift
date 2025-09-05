@@ -17,6 +17,7 @@ final class LookupClassViewModel: BaseViewModel {
         let callRequest: PublishRelay<Void>
         let selectCategory: ControlEvent<(ClassCategory, Bool)>
         let sortButtonTap: ControlEvent<Void>
+        let classSelected: ControlEvent<ClassResult>
     }
     
     struct Output {
@@ -25,6 +26,7 @@ final class LookupClassViewModel: BaseViewModel {
         let countText: BehaviorRelay<String>
         let sortOption: BehaviorRelay<ClassSortOption>
         let scrollToTop: PublishRelay<Void>
+        let pushDetailVC: PublishRelay<String>
         let errorAlert: PublishRelay<String>
     }
     
@@ -34,6 +36,7 @@ final class LookupClassViewModel: BaseViewModel {
         let countText = BehaviorRelay<String>(value: "0개")
         let sortOption = BehaviorRelay<ClassSortOption>(value: .latest)
         let scrollToTop = PublishRelay<Void>()
+        let pushDetailVC = PublishRelay<String>()
         let errorAlert = PublishRelay<String>()
         
         let totalClass = PublishRelay<[ClassResult]>()
@@ -65,7 +68,7 @@ final class LookupClassViewModel: BaseViewModel {
         
         classList
             .map {
-                "\(AppFormatter.number.string(from: NSNumber(value: $0.count)) ?? "0")개"
+                "\(MyFormatter.number.string(from: NSNumber(value: $0.count)) ?? "0")개"
             }
             .bind(to: countText)
             .disposed(by: disposeBag)
@@ -101,12 +104,19 @@ final class LookupClassViewModel: BaseViewModel {
             }
             .disposed(by: disposeBag)
         
+        input.classSelected
+            .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
+            .map { $0.classId }
+            .bind(to: pushDetailVC)
+            .disposed(by: disposeBag)
+        
         return Output(
             categories: categories,
             classList: classList,
             countText: countText,
             sortOption: sortOption,
             scrollToTop: scrollToTop,
+            pushDetailVC: pushDetailVC,
             errorAlert: errorAlert
         )
     }

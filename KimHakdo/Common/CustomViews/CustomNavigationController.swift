@@ -15,6 +15,10 @@ final class CustomNavigationController: UINavigationController {
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithOpaqueBackground()
         navAppearance.shadowColor = .gray
+        navAppearance.titleTextAttributes = [
+            .foregroundColor: UIColor.accent,
+            .font: AppFont.navTitle
+        ]
         
         navigationBar.standardAppearance = navAppearance
         navigationBar.scrollEdgeAppearance = navAppearance

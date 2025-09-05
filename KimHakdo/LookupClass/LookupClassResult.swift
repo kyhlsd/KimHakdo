@@ -32,7 +32,7 @@ struct ClassResult: Decodable {
         }
         
         let ratio = NSNumber(value: 1 - (Float(salePrice) / Float(price)))
-        return AppFormatter.percent.string(from: ratio)
+        return MyFormatter.percent.string(from: ratio)
     }
     
     enum CodingKeys: String, CodingKey {
@@ -57,7 +57,7 @@ struct ClassResult: Decodable {
         self.description = try container.decode(String.self, forKey: .description)
         self.imageURL = try container.decode(String.self, forKey: .imageURL)
         let createdAt = try container.decode(String.self, forKey: .createdAt)
-        self.createdAt = AppFormatter.date.date(from: createdAt) ?? Date()
+        self.createdAt = MyFormatter.serverDate.date(from: createdAt) ?? Date()
         self.isLiked = try container.decode(Bool.self, forKey: .isLiked)
         self.creator = try container.decode(Creator.self, forKey: .creator)
         self.price = try container.decodeIfPresent(Int.self, forKey: .price)

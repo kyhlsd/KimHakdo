@@ -99,6 +99,15 @@ final class ClassDetailView: BaseView {
         descriptionTextView.attributedText = attributedString
     }
     
+    func setProfileImage(image: String?) {
+        guard let image else {
+            profileImageView.image = .noProfile
+            return
+        }
+        let url = try? Router.fetchImage(url: image).asURL()
+        profileImageView.kf.setImage(with: url, options: ImageDownloadHelper.options)
+    }
+    
     override func setupView() {
         backgroundColor = .background
         
@@ -111,10 +120,6 @@ final class ClassDetailView: BaseView {
         capacityGuideLabel.text = "인원 "
         
         // TODO: 삭제
-        locationLabel.text = "문래역 근처 영등포캠퍼스"
-        dateLabel.text = "2025년 9월 4일 오후 5시"
-        capacityLabel.text = "3,000명"
-        favoriteButton.setStatusWithBorder(isFavorited: false)
         showCommentButton.backgroundColor = .point
         showCommentButton.setTitle("댓글보기 (56)", for: .normal)
     }

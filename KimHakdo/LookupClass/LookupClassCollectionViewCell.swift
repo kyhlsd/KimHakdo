@@ -100,13 +100,13 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         categoryLabel.text = data.category.description
         descriptionLabel.text = data.description
         
-        if let price = data.price, let priceString = AppFormatter.number.string(from: NSNumber(value: price)) {
+        if let price = data.price, let priceString = MyFormatter.number.string(from: NSNumber(value: price)) {
             priceLabel.attributedText = NSAttributedString(string: priceString, attributes: attributes)
             priceLabel.isHidden = false
         } else {
             priceLabel.isHidden = true
         }
-        if let salePrice = data.salePrice, let salePriceString = AppFormatter.number.string(from: NSNumber(value: salePrice)) {
+        if let salePrice = data.salePrice, let salePriceString = MyFormatter.number.string(from: NSNumber(value: salePrice)) {
             salePriceLabel.text = salePriceString
             salePriceLabel.isHidden = false
         } else {
