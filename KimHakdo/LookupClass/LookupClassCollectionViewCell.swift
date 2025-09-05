@@ -128,6 +128,7 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
     }
     
     override func setupLayout() {
+        imageView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
         imageView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(AppPadding.verticalInset)
             make.horizontalEdges.equalToSuperview()
