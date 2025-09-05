@@ -41,6 +41,7 @@ final class LookupClassViewController: UIViewController, BaseViewController {
             callRequest: callRequest,
             selectCategory: mainView.categoryCollectionView.rx.modelSelected((ClassCategory, Bool).self),
             sortButtonTap: mainView.sortButton.rx.tap,
+            willDisplayCell: mainView.classCollectionView.rx.willDisplayCell.map { _ in () },
             classSelected: mainView.classCollectionView.rx.modelSelected(ClassResult.self)
         )
         let output = viewModel.transform(input: input)
@@ -62,9 +63,8 @@ final class LookupClassViewController: UIViewController, BaseViewController {
             .disposed(by: disposeBag)
         
         output.scrollToTop
-            .bind(with: self) { owner, _ in
-                if owner.mainView.classCollectionView.visibleCells.isEmpty { return }
-                owner.mainView.classCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
+            .bind(with: self) { owner, indexPath in
+                owner.mainView.classCollectionView.scrollToItem(at: indexPath, at: .top, animated: false)
             }
             .disposed(by: disposeBag)
         

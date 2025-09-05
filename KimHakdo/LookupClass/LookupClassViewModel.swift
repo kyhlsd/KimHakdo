@@ -17,6 +17,7 @@ final class LookupClassViewModel: BaseViewModel {
         let callRequest: PublishRelay<Void>
         let selectCategory: ControlEvent<(ClassCategory, Bool)>
         let sortButtonTap: ControlEvent<Void>
+        let willDisplayCell: Observable<Void>
         let classSelected: ControlEvent<ClassResult>
     }
     
@@ -25,7 +26,7 @@ final class LookupClassViewModel: BaseViewModel {
         let classList: PublishRelay<[ClassResult]>
         let countText: BehaviorRelay<String>
         let sortOption: BehaviorRelay<ClassSortOption>
-        let scrollToTop: PublishRelay<Void>
+        let scrollToTop: PublishRelay<IndexPath>
         let pushDetailVC: PublishRelay<String>
         let errorAlert: PublishRelay<String>
     }
@@ -35,7 +36,7 @@ final class LookupClassViewModel: BaseViewModel {
         let classList = PublishRelay<[ClassResult]>()
         let countText = BehaviorRelay<String>(value: "0개")
         let sortOption = BehaviorRelay<ClassSortOption>(value: .latest)
-        let scrollToTop = PublishRelay<Void>()
+        let scrollToTop = PublishRelay<IndexPath>()
         let pushDetailVC = PublishRelay<String>()
         let errorAlert = PublishRelay<String>()
         
@@ -47,23 +48,24 @@ final class LookupClassViewModel: BaseViewModel {
                 }
                 return self.filterByCategory(total: total, category: category)
             }
+        let lastUpdateDate = PublishRelay<Date>()
 
-        Observable.combineLatest(filtered, sortOption)
+        let conditionChanged = Observable.combineLatest(filtered, sortOption)
             .flatMap { [weak self] (filtered, option) in
                 guard let self else {
                     return Observable.just([ClassResult]())
                 }
                 return self.sortClassList(list: filtered, option: option)
             }
+            .share()
+        
+        conditionChanged
             .bind(to: classList)
             .disposed(by: disposeBag)
         
-        classList
-            .filter { list in
-                !list.isEmpty
-            }
-            .map { _ in () }
-            .bind(to: scrollToTop)
+        conditionChanged
+            .map { _ in Date() }
+            .bind(to: lastUpdateDate)
             .disposed(by: disposeBag)
         
         classList
@@ -102,6 +104,13 @@ final class LookupClassViewModel: BaseViewModel {
                 let current = sortOption.value
                 sortOption.accept(current.toggled)
             }
+            .disposed(by: disposeBag)
+        
+        input.willDisplayCell
+            .withLatestFrom(lastUpdateDate)
+            .distinctUntilChanged()
+            .map { _ in IndexPath(item: 0, section: 0) }
+            .bind(to: scrollToTop)
             .disposed(by: disposeBag)
         
         input.classSelected

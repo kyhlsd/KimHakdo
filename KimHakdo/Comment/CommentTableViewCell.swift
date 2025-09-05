@@ -49,7 +49,7 @@ class CommentTableViewCell: BaseTableViewCell<Comment> {
     override func setData(data: Comment) {
         setProfileImage(image: data.creator.profileImage)
         nicknameLabel.text = data.creator.nick
-        setTimeLabel(date: data.createdAt)
+        timeLabel.text = getTimeDifference(date: data.createdAt)
         contentLabel.attributedText = NSAttributedString(string: data.content, attributes: attributes)
     }
     
@@ -62,8 +62,25 @@ class CommentTableViewCell: BaseTableViewCell<Comment> {
         profileImageView.kf.setImage(with: url, options: ImageDownloadHelper.options)
     }
     
-    private func setTimeLabel(date: Date) {
-        timeLabel.text = "45분 전"
+    private func getTimeDifference(date: Date) -> String {
+        let components = Calendar.current.dateComponents([.day, .hour, .minute], from: date, to: Date())
+        
+        var result = MyFormatter.userDate.string(from: date)
+        guard let dayDiff = components.day, dayDiff < 7 else {
+            return result
+        }
+        
+        result = "\(dayDiff)일 전"
+        guard let hourDiff = components.hour, dayDiff < 1 else {
+            return result
+        }
+        
+        result = "\(hourDiff)시간 전"
+        guard let minDiff = components.minute, hourDiff < 1 else {
+            return result
+        }
+        
+        return "\(minDiff)분 전"
     }
     
     override func setupView() {
@@ -98,6 +115,7 @@ class CommentTableViewCell: BaseTableViewCell<Comment> {
             make.trailing.equalToSuperview().offset(-AppPadding.horizontalPadding)
             make.top.equalTo(profileImageView.snp.bottom).offset(AppPadding.verticalInset)
             make.bottom.equalToSuperview().offset(-AppPadding.verticalPadding)
+            make.height.lessThanOrEqualTo(500)
         }
     }
 }
