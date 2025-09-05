@@ -19,7 +19,9 @@ final class ClassDetailViewModel: BaseViewModel {
     }
     
     struct Input {
-        let callRequest: PublishRelay<Void>
+        let callRequestForDetail: PublishRelay<Void>
+        let callRequestForComments: PublishRelay<Void>
+        let commentsButtonTap: ControlEvent<Void>
     }
     
     struct Output {
@@ -32,6 +34,9 @@ final class ClassDetailViewModel: BaseViewModel {
         let capacity: PublishRelay<String>
         let description: PublishRelay<String>
         let isFavorited: PublishRelay<Bool>
+        let commentsButtonTitle: BehaviorRelay<String>
+        let commentsButtonEnabled: BehaviorRelay<Bool>
+        let pushCommentVC: PublishRelay<[Comment]>
         let errorAlert: PublishRelay<String>
     }
     
@@ -45,9 +50,14 @@ final class ClassDetailViewModel: BaseViewModel {
         let capacity = PublishRelay<String>()
         let description = PublishRelay<String>()
         let isFavorited = PublishRelay<Bool>()
+        let commentsButtonTitle = BehaviorRelay<String>(value: "댓글보기 (0)")
+        let commentsButtonEnabled = BehaviorRelay<Bool>(value: false)
+        let pushCommentVC = PublishRelay<[Comment]>()
         let errorAlert = PublishRelay<String>()
+                
+        let comments = PublishRelay<[Comment]>()
         
-        input.callRequest
+        input.callRequestForDetail
             .flatMap { [weak self] in
                 guard let self else {
                     return Single<Result<ClassDetailResult, APIError>>.just(.failure(.unknown))
@@ -72,6 +82,41 @@ final class ClassDetailViewModel: BaseViewModel {
             }
             .disposed(by: disposeBag)
         
+        input.callRequestForComments
+            .flatMap { [weak self] in
+                guard let self else {
+                    return Single<Result<CommentsResult, APIError>>.just(.failure(.unknown))
+                }
+                return NetworkManager.shared.callRequest(url: .lookupComment(id: id), type: CommentsResult.self)
+            }
+            .bind(with: self) { owner, result in
+                switch result {
+                case .success(let value):
+                    comments.accept(value.data)
+                case .failure(let error):
+                    errorAlert.accept(error.localizedDescription)
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        comments
+            .map { "댓글보기 \($0.count)" }
+            .distinctUntilChanged()
+            .bind(to: commentsButtonTitle)
+            .disposed(by: disposeBag)
+        
+        comments
+            .map { $0.count > 0 }
+            .distinctUntilChanged()
+            .bind(to: commentsButtonEnabled)
+            .disposed(by: disposeBag)
+        
+        input.commentsButtonTap
+            .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
+            .withLatestFrom(comments)
+            .bind(to: pushCommentVC)
+            .disposed(by: disposeBag)
+        
         return Output(
             navTitle: navTitle,
             imageURLs: imageURLs,
@@ -82,6 +127,9 @@ final class ClassDetailViewModel: BaseViewModel {
             capacity: capacity,
             description: description,
             isFavorited: isFavorited,
+            commentsButtonTitle: commentsButtonTitle,
+            commentsButtonEnabled: commentsButtonEnabled,
+            pushCommentVC: pushCommentVC,
             errorAlert: errorAlert
         )
     }

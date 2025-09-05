@@ -13,6 +13,7 @@ enum Router: URLRequestConvertible, URLConvertible {
     case lookupClass
     case fetchImage(url: String)
     case getDetail(id: String)
+    case lookupComment(id: String)
     
     var baseURL: String {
        return APIInfo.baseURL
@@ -22,7 +23,7 @@ enum Router: URLRequestConvertible, URLConvertible {
         switch self {
         case .login:
             return .post
-        case .lookupClass, .fetchImage, .getDetail:
+        case .lookupClass, .fetchImage, .getDetail, .lookupComment:
             return .get
         }
     }
@@ -41,6 +42,8 @@ enum Router: URLRequestConvertible, URLConvertible {
             return "/\(version)\(url)"
         case .getDetail(let id):
             return "/\(version)/courses/\(id)"
+        case .lookupComment(let id):
+            return "/\(version)/courses/\(id)/comments"
         }
     }
     
@@ -51,16 +54,13 @@ enum Router: URLRequestConvertible, URLConvertible {
                 "email": email,
                 "password": password
             ]
-        case .lookupClass, .fetchImage, .getDetail:
+        case .lookupClass, .fetchImage, .getDetail, .lookupComment:
             return nil
         }
     }
     
     var queryItems: [URLQueryItem] {
-        switch self {
-        case .login, .lookupClass, .fetchImage, .getDetail:
-            return []
-        }
+        return []
     }
     
     var headers: HTTPHeaders {
@@ -70,7 +70,7 @@ enum Router: URLRequestConvertible, URLConvertible {
                 .contentType,
                 .sesacKey
             ])
-        case .lookupClass, .fetchImage, .getDetail:
+        case .lookupClass, .fetchImage, .getDetail, .lookupComment:
             return Headers.asHTTPHeaders([
                 .authorization,
                 .sesacKey

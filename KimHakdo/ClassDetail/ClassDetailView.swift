@@ -118,10 +118,6 @@ final class ClassDetailView: BaseView {
         locationGuideLabel.text = "장소 "
         dateGuideLabel.text = "시간 "
         capacityGuideLabel.text = "인원 "
-        
-        // TODO: 삭제
-        showCommentButton.backgroundColor = .point
-        showCommentButton.setTitle("댓글보기 (56)", for: .normal)
     }
 
     override func setupHierarchy() {

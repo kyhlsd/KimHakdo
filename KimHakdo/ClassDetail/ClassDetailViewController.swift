@@ -32,11 +32,18 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         bind()
+        setup()
     }
     
     func bind() {
-        let callRequeset = PublishRelay<Void>()
-        let input = ClassDetailViewModel.Input(callRequest: callRequeset)
+        let callRequestForDetail = PublishRelay<Void>()
+        let callRequestForComments = PublishRelay<Void>()
+        
+        let input = ClassDetailViewModel.Input(
+            callRequestForDetail: callRequestForDetail,
+            callRequestForComments: callRequestForComments,
+            commentsButtonTap: mainView.showCommentButton.rx.tap
+        )
         let output = viewModel.transform(input: input)
         
         output.navTitle
@@ -83,14 +90,39 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
             }
             .disposed(by: disposeBag)
         
+        output.commentsButtonTitle
+            .bind(with: self) { owner, title in
+                owner.mainView.showCommentButton.setTitle(title, for: .normal)
+            }
+            .disposed(by: disposeBag)
+        
+        output.commentsButtonEnabled
+            .map { PointButton.getColor($0) }
+            .bind(to: mainView.showCommentButton.rx.backgroundColor)
+            .disposed(by: disposeBag)
+        
+        output.commentsButtonEnabled
+            .bind(to: mainView.showCommentButton.rx.isEnabled)
+            .disposed(by: disposeBag)
+        
         output.errorAlert
             .bind(with: self) { owner, message in
                 owner.presentDefaultAlert(title: "데이터 불러오기 실패", message: message)
             }
             .disposed(by: disposeBag)
         
-        callRequeset.accept(())
+        output.pushCommentVC
+            .bind(with: self) { owner, comments in
+                owner.navigationController?.pushViewController(CommentsViewController(), animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        callRequestForDetail.accept(())
+        callRequestForComments.accept(())
     }
     
-    
+    private func setup() {
+        hidesBottomBarWhenPushed = true
+        navigationItem.backButtonTitle = " "
+    }
 }
