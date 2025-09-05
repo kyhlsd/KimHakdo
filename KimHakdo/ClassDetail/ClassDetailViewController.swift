@@ -31,8 +31,8 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupNavItem()
         bind()
-        setup()
     }
     
     func bind() {
@@ -122,8 +122,7 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
         callRequestForComments.accept(())
     }
     
-    private func setup() {
-        hidesBottomBarWhenPushed = true
+    private func setupNavItem() {
         navigationItem.backButtonTitle = " "
     }
 }

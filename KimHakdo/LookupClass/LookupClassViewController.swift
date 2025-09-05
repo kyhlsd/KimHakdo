@@ -21,8 +21,18 @@ final class LookupClassViewController: UIViewController, BaseViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setNavItem()
+        setupNavItem()
         bind()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.tabBarController?.tabBar.isHidden = false
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.tabBarController?.tabBar.isHidden = true
     }
 
     func bind() {
@@ -80,7 +90,7 @@ final class LookupClassViewController: UIViewController, BaseViewController {
         callRequest.accept(())
     }
     
-    private func setNavItem() {
+    private func setupNavItem() {
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: NavTitleLabel(title: "클래스 조회"))
         navigationItem.backButtonTitle = " "
     }

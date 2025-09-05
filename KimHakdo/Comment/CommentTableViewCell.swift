@@ -11,7 +11,7 @@ import Kingfisher
 
 class CommentTableViewCell: BaseTableViewCell<Comment> {
 
-    private let profileImageView = {
+    let profileImageView = {
         let imageView = UIImageView()
         imageView.kf.indicatorType = .activity
         imageView.clipsToBounds = true

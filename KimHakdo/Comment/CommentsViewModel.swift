@@ -21,21 +21,38 @@ final class CommentsViewModel: BaseViewModel {
     }
     
     struct Input {
-        
+        let moreButtonTap: PublishRelay<String>
     }
     
     struct Output {
-        let comments: BehaviorRelay<[Comment]>
+        let commentDataList: BehaviorRelay<[(Comment, Bool)]>
         let navTitle: Observable<String>
+        let presentEditActionSheet: PublishRelay<String>
     }
     
     func transform(input: Input) -> Output {
-        let comments = BehaviorRelay(value: self.comments)
+        let commentData = self.comments
+            .map { [weak self] comment in
+                guard let self else { return (comment, false) }
+                return (comment, isMine(id: comment.creator.userId))
+            }
+        let commentDataList = BehaviorRelay(value: commentData)
         let navTitle = Observable.just(self.navTitle)
+        let presentEditActionSheet = PublishRelay<String>()
+        
+        input.moreButtonTap
+            .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
+            .bind(to: presentEditActionSheet)
+            .disposed(by: disposeBag)
         
         return Output(
-            comments: comments,
-            navTitle: navTitle
+            commentDataList: commentDataList,
+            navTitle: navTitle,
+            presentEditActionSheet: presentEditActionSheet
         )
+    }
+    
+    private func isMine(id: String) -> Bool {
+        return id == UserDefaultHelper.userId
     }
 }

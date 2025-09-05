@@ -127,14 +127,14 @@ final class LookupClassViewModel: BaseViewModel {
             switch option {
             case .latest:
                 sorted = list.sorted {
-                    $0.createdAt < $1.createdAt
+                    $0.createdAt > $1.createdAt
                 }
             case .highPrice:
                 sorted = list.sorted {
                     let first = $0.price ?? 0
                     let second = $1.price ?? 0
                     if first == second {
-                        return $0.createdAt < $1.createdAt
+                        return $0.createdAt > $1.createdAt
                     } else {
                         return first > second
                     }

@@ -17,6 +17,7 @@ final class CommentsView: BaseView {
         tableView.separatorStyle = .none
         tableView.allowsSelection = false
         tableView.register(cellClass: CommentTableViewCell.self)
+        tableView.register(cellClass: MyCommentTableViewCell.self)
         return tableView
     }()
     
