@@ -30,10 +30,10 @@ final class LookupClassViewController: UIViewController, BaseViewController {
         let input = LookupClassViewModel.Input(
             callRequest: callRequest,
             selectCategory: mainView.categoryCollectionView.rx.modelSelected((ClassCategory, Bool).self),
-            sortButtonTap: mainView.sortButton.rx.tap
+            sortButtonTap: mainView.sortButton.rx.tap,
+            classSelected: mainView.classCollectionView.rx.modelSelected(ClassResult.self)
         )
         let output = viewModel.transform(input: input)
-        
         output.categories
             .bind(to: mainView.categoryCollectionView.rx.items(cellIdentifier: CategoryCollectionViewCell.identifier, cellType: CategoryCollectionViewCell.self)) { _, element, cell in
                 cell.setData(data: element)
@@ -71,10 +71,17 @@ final class LookupClassViewController: UIViewController, BaseViewController {
             }
             .disposed(by: disposeBag)
         
+        output.pushDetailVC
+            .bind(with: self) { owner, id in
+                owner.navigationController?.pushViewController(ClassDetailViewController(id: id), animated: true)
+            }
+            .disposed(by: disposeBag)
+        
         callRequest.accept(())
     }
     
     private func setNavItem() {
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: NavTitleLabel(title: "클래스 조회"))
+        navigationItem.backButtonTitle = " "
     }
 }
