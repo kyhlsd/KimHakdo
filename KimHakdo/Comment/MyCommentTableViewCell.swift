@@ -16,7 +16,8 @@ final class MyCommentTableViewCell: CommentTableViewCell {
     
     private let moreButton = {
         let button = UIButton()
-        button.setImage(UIImage(systemName: "ellipsis")?.withTintColor(.black), for: .normal)
+        button.setImage(UIImage(systemName: "ellipsis"), for: .normal)
+        button.tintColor = .black
         return button
     }()
     
