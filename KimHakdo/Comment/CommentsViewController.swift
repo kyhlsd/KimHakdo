@@ -76,7 +76,7 @@ final class CommentsViewController: UIViewController, BaseViewController {
         output.pushPostCommentVC
             .bind(with: self) { owner, data in
                 let (info, prevComment) = data
-                owner.navigationController?.pushViewController(PostCommentViewController(classInfo: info, prevComment: prevComment), animated: true)
+                owner.navigationController?.pushViewController(PostAndEditCommentViewController(classInfo: info, prevComment: prevComment), animated: true)
             }
             .disposed(by: disposeBag)
         

@@ -1,5 +1,5 @@
 //
-//  PostCommentViewController.swift
+//  PostAndEditCommentViewController.swift
 //  KimHakdo
 //
 //  Created by 김영훈 on 9/5/25.
@@ -9,14 +9,14 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-final class PostCommentViewController: UIViewController, BaseViewController {
+final class PostAndEditCommentViewController: UIViewController, BaseViewController {
 
-    let mainView = PostCommentView()
-    let viewModel: PostCommentViewModel
+    let mainView = PostAndEditCommentView()
+    let viewModel: PostAndEditCommentViewModel
     private let disposeBag = DisposeBag()
     
     init(classInfo: ClassCoreInfo, prevComment: Comment?) {
-        self.viewModel = PostCommentViewModel(classInfo: classInfo, prevComment: prevComment)
+        self.viewModel = PostAndEditCommentViewModel(classInfo: classInfo, prevComment: prevComment)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -40,7 +40,7 @@ final class PostCommentViewController: UIViewController, BaseViewController {
     }
     
     func bind() {
-        let input = PostCommentViewModel.Input(
+        let input = PostAndEditCommentViewModel.Input(
             contentText: mainView.textView.rx.text,
             didBeginEditing: mainView.textView.rx.didBeginEditing,
             didEndEditing: mainView.textView.rx.didEndEditing,

@@ -1,5 +1,5 @@
 //
-//  PostCommentViewModel.swift
+//  PostAndEditCommentViewModel.swift
 //  KimHakdo
 //
 //  Created by 김영훈 on 9/5/25.
@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-final class PostCommentViewModel: BaseViewModel {
+final class PostAndEditCommentViewModel: BaseViewModel {
     
     private let classInfo: ClassCoreInfo
     private let prevComment: Comment?
