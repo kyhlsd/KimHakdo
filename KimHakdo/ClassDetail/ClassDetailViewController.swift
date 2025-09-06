@@ -35,6 +35,11 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
         bind()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.tabBarController?.tabBar.isHidden = true
+    }
+    
     func bind() {
         let callRequestForDetail = PublishRelay<Void>()
         let callRequestForComments = PublishRelay<Void>()

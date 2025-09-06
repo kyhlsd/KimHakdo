@@ -30,11 +30,6 @@ final class SearchClassViewController: UIViewController, BaseViewController {
         navigationController?.tabBarController?.tabBar.isHidden = false
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        navigationController?.tabBarController?.tabBar.isHidden = true
-    }
-    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         view.endEditing(true)
     }
