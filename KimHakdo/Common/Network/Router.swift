@@ -17,6 +17,7 @@ enum Router: URLRequestConvertible, URLConvertible {
     case postComment(id: String, content: String)
     case deleteComment(classId: String, commentId: String)
     case editComment(classId: String, commentId: String, content: String)
+    case searchClass(keyword: String)
     
     var baseURL: String {
        return APIInfo.baseURL
@@ -26,7 +27,7 @@ enum Router: URLRequestConvertible, URLConvertible {
         switch self {
         case .login, .postComment:
             return .post
-        case .lookupClass, .fetchImage, .getDetail, .lookupComment:
+        case .lookupClass, .fetchImage, .getDetail, .lookupComment, .searchClass:
             return .get
         case .deleteComment:
             return .delete
@@ -53,6 +54,8 @@ enum Router: URLRequestConvertible, URLConvertible {
             return "/\(version)/courses/\(id)/comments"
         case .deleteComment(let classId, let commentId), .editComment(let classId, let commentId, _):
             return "/\(version)/courses/\(classId)/comments/\(commentId)"
+        case .searchClass:
+            return "/\(version)/courses/search"
         }
     }
     
@@ -67,13 +70,20 @@ enum Router: URLRequestConvertible, URLConvertible {
             return [
                 "content": content
             ]
-        case .lookupClass, .fetchImage, .getDetail, .lookupComment, .deleteComment:
+        case .lookupClass, .fetchImage, .getDetail, .lookupComment, .deleteComment, .searchClass:
             return nil
         }
     }
     
     var queryItems: [URLQueryItem] {
-        return []
+        switch self {
+        case .searchClass(let keyword):
+            return Query.asURLQueryItems([
+                .searchWord(keyword: keyword)
+            ])
+        default:
+            return []
+        }
     }
     
     var headers: HTTPHeaders {
@@ -83,7 +93,7 @@ enum Router: URLRequestConvertible, URLConvertible {
                 .contentType,
                 .sesacKey
             ])
-        case .lookupClass, .fetchImage, .getDetail, .lookupComment, .deleteComment:
+        case .lookupClass, .fetchImage, .getDetail, .lookupComment, .deleteComment, .searchClass:
             return Headers.asHTTPHeaders([
                 .authorization,
                 .sesacKey
@@ -109,6 +119,21 @@ enum Router: URLRequestConvertible, URLConvertible {
         url = url.appendingPathComponent(paths)
         url = url.appending(queryItems: queryItems)
         return url
+    }
+    
+    enum Query {
+        case searchWord(keyword: String)
+        
+        var queryItem: URLQueryItem {
+            switch self {
+            case .searchWord(let keyword):
+                return URLQueryItem(name: "title", value: keyword)
+            }
+        }
+        
+        static func asURLQueryItems(_ list: [Query]) -> [URLQueryItem] {
+            return list.map { $0.queryItem }
+        }
     }
     
     enum Headers {

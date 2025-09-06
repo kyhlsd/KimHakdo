@@ -1,5 +1,5 @@
 //
-//  LookupClassResult.swift
+//  ClassListResult.swift
 //  KimHakdo
 //
 //  Created by 김영훈 on 9/4/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct LookupClassResult: Decodable {
+struct ClassListResult: Decodable {
     let data: [ClassResult]
 }
 

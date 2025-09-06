@@ -12,16 +12,16 @@ final class CustomNavigationController: UINavigationController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let navAppearance = UINavigationBarAppearance()
-        navAppearance.configureWithOpaqueBackground()
-        navAppearance.shadowColor = .gray
-        navAppearance.titleTextAttributes = [
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.shadowColor = .gray
+        appearance.titleTextAttributes = [
             .foregroundColor: UIColor.myAccent,
             .font: AppFont.navTitle
         ]
         
-        navigationBar.standardAppearance = navAppearance
-        navigationBar.scrollEdgeAppearance = navAppearance
+        navigationBar.standardAppearance = appearance
+        navigationBar.scrollEdgeAppearance = appearance
         navigationBar.tintColor = .black
         
         view.backgroundColor = .background

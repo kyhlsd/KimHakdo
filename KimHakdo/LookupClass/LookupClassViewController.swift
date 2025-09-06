@@ -29,11 +29,6 @@ final class LookupClassViewController: UIViewController, BaseViewController {
         super.viewWillAppear(animated)
         navigationController?.tabBarController?.tabBar.isHidden = false
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        navigationController?.tabBarController?.tabBar.isHidden = true
-    }
 
     func bind() {
         let callRequest = PublishRelay<Void>()

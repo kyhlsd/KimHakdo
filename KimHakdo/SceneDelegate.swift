@@ -21,13 +21,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let lookupNav = CustomNavigationController(rootViewController: LookupClassViewController())
             lookupNav.setTabBarItem(title: "카테고리", image: UIImage(systemName: "house.fill"), tag: 0)
             
+            let searchNav = CustomNavigationController(rootViewController: SearchClassViewController())
+            searchNav.setTabBarItem(title: "검색", image: UIImage(systemName: "magnifyingglass"), tag: 1)
+            
             let tab = UITabBarController()
-            tab.viewControllers = [lookupNav]
+            tab.viewControllers = [lookupNav, searchNav]
             window?.rootViewController = tab
         } else {
             window?.rootViewController = LoginViewController()
         }
-//        window?.rootViewController = CustomNavigationController(rootViewController: PostCommentViewController())
         
         window?.makeKeyAndVisible()
     }
