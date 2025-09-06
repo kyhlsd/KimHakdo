@@ -66,16 +66,16 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         .strikethroughStyle:  NSUnderlineStyle.single.rawValue
     ]
     
-    private let priceLabel = UILabel()
+    private let strikeThroughPriceLabel = UILabel()
     
-    private let salePriceLabel = {
+    private let defaultPriceLabel = {
         let label = UILabel()
         label.font = AppFont.accent
         label.textColor = .black
         return label
     }()
     
-    private let salePercentageLabel = {
+    private let pointPriceLabel = {
         let label = UILabel()
         label.font = AppFont.accent
         label.textColor = .point
@@ -87,9 +87,9 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
     override func prepareForReuse() {
         super.prepareForReuse()
         imageView.image = nil
-        priceLabel.isHidden = true
-        salePriceLabel.isHidden = true
-        salePercentageLabel.text = nil
+        strikeThroughPriceLabel.isHidden = true
+        defaultPriceLabel.isHidden = true
+        pointPriceLabel.text = nil
     }
     
     override func setData(data: ClassResult) {
@@ -100,21 +100,35 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         categoryLabel.text = data.category.description
         descriptionLabel.text = data.description
         
-        if let price = data.price, let priceString = MyFormatter.number.string(from: NSNumber(value: price)) {
-            priceLabel.attributedText = NSAttributedString(string: priceString, attributes: attributes)
-            priceLabel.isHidden = false
-        } else {
-            priceLabel.isHidden = true
-        }
-        if let salePrice = data.salePrice, let salePriceString = MyFormatter.number.string(from: NSNumber(value: salePrice)) {
-            salePriceLabel.text = salePriceString
-            salePriceLabel.isHidden = false
-        } else {
-            salePriceLabel.isHidden = true
-        }
-        salePercentageLabel.text = data.salePercentage
+        setPriceLabels(price: data.price, salePrice: data.salePrice, salePercentage: data.salePercentage)
         
         favoriteButton.setStatus(isFavorited: data.isLiked)
+    }
+    
+    private func setPriceLabels(price: Int?, salePrice: Int?, salePercentage: String?) {
+        // 원가 nil, 세일가 nil -> 무료만 표기
+        guard let price, let priceString = MyFormatter.number.string(from: NSNumber(value: price)) else {
+            strikeThroughPriceLabel.isHidden = true
+            defaultPriceLabel.isHidden = true
+            pointPriceLabel.text = salePercentage
+            return
+        }
+        
+        // 원가 있음, 세일가 nil -> 원가만 표기
+        guard let salePrice, let salePriceString = MyFormatter.number.string(from: NSNumber(value: salePrice)) else {
+            strikeThroughPriceLabel.isHidden = true
+            defaultPriceLabel.text = priceString
+            defaultPriceLabel.isHidden = false
+            pointPriceLabel.text = salePercentage
+            return
+        }
+        
+        // 원가 있음, 세일가 있음 -> 전부 표기
+        strikeThroughPriceLabel.attributedText = NSAttributedString(string: priceString, attributes: attributes)
+        strikeThroughPriceLabel.isHidden = false
+        defaultPriceLabel.text = salePriceString
+        defaultPriceLabel.isHidden = false
+        pointPriceLabel.text = salePercentage
     }
     
     override func setupHierarchy() {
@@ -122,7 +136,7 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
             contentView.addSubview($0)
         }
         categoryContainer.addSubview(categoryLabel)
-        [priceLabel, salePriceLabel,salePercentageLabel].forEach {
+        [strikeThroughPriceLabel, defaultPriceLabel,pointPriceLabel].forEach {
             priceStackView.addArrangedSubview($0)
         }
     }
