@@ -37,9 +37,13 @@ final class CommentsViewController: UIViewController, BaseViewController {
 
     func bind() {
         let moreButtonTap = PublishRelay<String>()
+        let editTap = PublishRelay<String>()
+        let deleteTap = PublishRelay<String>()
         
         let input = CommentsViewModel.Input(
             moreButtonTap: moreButtonTap,
+            editTap: editTap,
+            deleteTap: deleteTap,
             navItemTap: navigationItem.rightBarButtonItem?.rx.tap
         )
         let output = viewModel.transform(input: input)
@@ -65,7 +69,7 @@ final class CommentsViewController: UIViewController, BaseViewController {
            
         output.presentEditActionSheet
             .bind(with: self) { owner, commentId in
-                owner.presentEditActionSheet(commentId: commentId)
+                owner.presentEditActionSheet(commentId: commentId, editRelay: editTap, deleteRelay: deleteTap)
             }
             .disposed(by: disposeBag)
         
@@ -74,21 +78,35 @@ final class CommentsViewController: UIViewController, BaseViewController {
                 owner.navigationController?.pushViewController(PostCommentViewController(classInfo: info), animated: true)
             }
             .disposed(by: disposeBag)
+        
+        output.toastMessage
+            .bind(with: self) { owner, message in
+                owner.showDefaultToast(message: message)
+            }
+            .disposed(by: disposeBag)
+        
+        output.errorAlert
+            .bind(with: self) { owner, message in
+                owner.presentDefaultAlert(title: "댓글 삭제 실패", message: message)
+            }
+            .disposed(by: disposeBag)
     }
     
     private func setupNavItem() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: .comment, style: .done, target: self, action: nil)
     }
     
-    private func presentEditActionSheet(commentId: String) {
+    private func presentEditActionSheet(commentId: String, editRelay: PublishRelay<String>, deleteRelay: PublishRelay<String>) {
         let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
         actionSheet.addAction(UIAlertAction(title: "댓글 수정", style: .default, handler: { _ in
-            print("댓글 수정")
+            editRelay.accept(commentId)
         }))
         actionSheet.addAction(UIAlertAction(title: "댓글 삭제", style: .destructive, handler: { _ in
-            print("댓글 삭제")
+            deleteRelay.accept(commentId)
         }))
         actionSheet.addAction(UIAlertAction(title: "취소", style: .cancel))
+        
         present(actionSheet, animated: true)
     }
 

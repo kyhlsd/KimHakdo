@@ -22,6 +22,8 @@ final class CommentsViewModel: BaseViewModel {
     
     struct Input {
         let moreButtonTap: PublishRelay<String>
+        let editTap: PublishRelay<String>
+        let deleteTap: PublishRelay<String>
         let navItemTap: ControlEvent<Void>?
     }
     
@@ -30,6 +32,8 @@ final class CommentsViewModel: BaseViewModel {
         let navTitle: Observable<String>
         let presentEditActionSheet: PublishRelay<String>
         let pushPostCommentVC: PublishRelay<ClassCoreInfo>
+        let toastMessage: PublishRelay<String>
+        let errorAlert: PublishRelay<String>
     }
     
     func transform(input: Input) -> Output {
@@ -42,10 +46,37 @@ final class CommentsViewModel: BaseViewModel {
         let navTitle = Observable.just(self.classCoreInfo.title)
         let presentEditActionSheet = PublishRelay<String>()
         let pushPostCommentVC = PublishRelay<ClassCoreInfo>()
+        let toastMessage = PublishRelay<String>()
+        let errorAlert = PublishRelay<String>()
         
         input.moreButtonTap
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
             .bind(to: presentEditActionSheet)
+            .disposed(by: disposeBag)
+        
+        // editMode
+        input.editTap
+            .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
+            .compactMap { [weak self] _ in self?.classCoreInfo }
+            .bind(to: pushPostCommentVC)
+            .disposed(by: disposeBag)
+        
+        input.deleteTap
+            .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
+            .flatMap { [weak self] commentId in
+                guard let self else {
+                    return Single<Result<Void, APIError>>.just(.failure(.unknown))
+                }
+                return NetworkManager.shared.callRequestWithNoResponse(url: .deleteComment(classId: classCoreInfo.classId, commentId: commentId))
+            }
+            .bind { result in
+                switch result {
+                case .success:
+                    toastMessage.accept("댓글을 삭제했습니다.")
+                case .failure(let error):
+                    errorAlert.accept(error.localizedDescription)
+                }
+            }
             .disposed(by: disposeBag)
         
         input.navItemTap?
@@ -58,7 +89,9 @@ final class CommentsViewModel: BaseViewModel {
             commentDataList: commentDataList,
             navTitle: navTitle,
             presentEditActionSheet: presentEditActionSheet,
-            pushPostCommentVC: pushPostCommentVC
+            pushPostCommentVC: pushPostCommentVC,
+            toastMessage: toastMessage,
+            errorAlert: errorAlert
         )
     }
     

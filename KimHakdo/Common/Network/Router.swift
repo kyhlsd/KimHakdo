@@ -15,6 +15,7 @@ enum Router: URLRequestConvertible, URLConvertible {
     case getDetail(id: String)
     case lookupComment(id: String)
     case postComment(id: String, content: String)
+    case deleteComment(classId: String, commentId: String)
     
     var baseURL: String {
        return APIInfo.baseURL
@@ -26,6 +27,8 @@ enum Router: URLRequestConvertible, URLConvertible {
             return .post
         case .lookupClass, .fetchImage, .getDetail, .lookupComment:
             return .get
+        case .deleteComment:
+            return .delete
         }
     }
         
@@ -47,6 +50,8 @@ enum Router: URLRequestConvertible, URLConvertible {
             return "/\(version)/courses/\(id)/comments"
         case .postComment(let id, _):
             return "/\(version)/courses/\(id)/comments"
+        case .deleteComment(let classId, let commentId):
+            return "/\(version)/courses/\(classId)/comments/\(commentId)"
         }
     }
     
@@ -61,7 +66,7 @@ enum Router: URLRequestConvertible, URLConvertible {
             return [
                 "content": content
             ]
-        case .lookupClass, .fetchImage, .getDetail, .lookupComment:
+        case .lookupClass, .fetchImage, .getDetail, .lookupComment, .deleteComment:
             return nil
         }
     }
@@ -77,7 +82,7 @@ enum Router: URLRequestConvertible, URLConvertible {
                 .contentType,
                 .sesacKey
             ])
-        case .lookupClass, .fetchImage, .getDetail, .lookupComment:
+        case .lookupClass, .fetchImage, .getDetail, .lookupComment, .deleteComment:
             return Headers.asHTTPHeaders([
                 .authorization,
                 .sesacKey
