@@ -31,8 +31,8 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupNavItem()
         bind()
-        setup()
     }
     
     func bind() {
@@ -79,9 +79,7 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
             .disposed(by: disposeBag)
         
         output.description
-            .bind(with: self) { owner, text in
-                owner.mainView.setDescriptionText(text: text)
-            }
+            .bind(to: mainView.descriptionTextView.rx.text)
             .disposed(by: disposeBag)
         
         output.isFavorited
@@ -112,8 +110,9 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
             .disposed(by: disposeBag)
         
         output.pushCommentVC
-            .bind(with: self) { owner, comments in
-                owner.navigationController?.pushViewController(CommentsViewController(), animated: true)
+            .bind(with: self) { owner, data in
+                let (comments, classCoreInfo) = data
+                owner.navigationController?.pushViewController(CommentsViewController(comments: comments, classCoreInfo: classCoreInfo), animated: true)
             }
             .disposed(by: disposeBag)
         
@@ -121,8 +120,7 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
         callRequestForComments.accept(())
     }
     
-    private func setup() {
-        hidesBottomBarWhenPushed = true
+    private func setupNavItem() {
         navigationItem.backButtonTitle = " "
     }
 }

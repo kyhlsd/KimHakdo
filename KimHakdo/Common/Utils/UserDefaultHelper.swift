@@ -10,6 +10,9 @@ import Foundation
 enum UserDefaultHelper {
     @UserDefault(key: "Token", type: String.self)
     static var token: String?
+    
+    @UserDefault(key: "ID", type: String.self)
+    static var userId: String?
 }
 
 @propertyWrapper

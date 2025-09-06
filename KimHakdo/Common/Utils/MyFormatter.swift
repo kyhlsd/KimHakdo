@@ -12,6 +12,7 @@ enum MyFormatter {
         let formatter = DateFormatter()
         // 2025-08-28T12:28:48.751Z
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        formatter.timeZone = TimeZone(identifier: "UTC")
         return formatter
     }()
     

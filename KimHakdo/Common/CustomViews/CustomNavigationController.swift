@@ -16,12 +16,13 @@ final class CustomNavigationController: UINavigationController {
         navAppearance.configureWithOpaqueBackground()
         navAppearance.shadowColor = .gray
         navAppearance.titleTextAttributes = [
-            .foregroundColor: UIColor.accent,
+            .foregroundColor: UIColor.myAccent,
             .font: AppFont.navTitle
         ]
         
         navigationBar.standardAppearance = navAppearance
         navigationBar.scrollEdgeAppearance = navAppearance
+        navigationBar.tintColor = .black
         
         view.backgroundColor = .background
     }

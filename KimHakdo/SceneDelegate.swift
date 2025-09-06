@@ -27,6 +27,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         } else {
             window?.rootViewController = LoginViewController()
         }
+//        window?.rootViewController = CustomNavigationController(rootViewController: PostCommentViewController())
         
         window?.makeKeyAndVisible()
     }

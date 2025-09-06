@@ -23,7 +23,7 @@ final class NavTitleLabel: UILabel {
     }
     
     private func setup() {
-        textColor = .accent
+        textColor = .myAccent
         font = AppFont.navTitle
         text = title
     }

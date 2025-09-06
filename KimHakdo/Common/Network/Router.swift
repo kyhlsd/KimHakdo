@@ -14,6 +14,9 @@ enum Router: URLRequestConvertible, URLConvertible {
     case fetchImage(url: String)
     case getDetail(id: String)
     case lookupComment(id: String)
+    case postComment(id: String, content: String)
+    case deleteComment(classId: String, commentId: String)
+    case editComment(classId: String, commentId: String, content: String)
     
     var baseURL: String {
        return APIInfo.baseURL
@@ -21,10 +24,14 @@ enum Router: URLRequestConvertible, URLConvertible {
     
     var method: HTTPMethod {
         switch self {
-        case .login:
+        case .login, .postComment:
             return .post
         case .lookupClass, .fetchImage, .getDetail, .lookupComment:
             return .get
+        case .deleteComment:
+            return .delete
+        case .editComment:
+            return .put
         }
     }
         
@@ -42,8 +49,10 @@ enum Router: URLRequestConvertible, URLConvertible {
             return "/\(version)\(url)"
         case .getDetail(let id):
             return "/\(version)/courses/\(id)"
-        case .lookupComment(let id):
+        case .lookupComment(let id), .postComment(let id, _):
             return "/\(version)/courses/\(id)/comments"
+        case .deleteComment(let classId, let commentId), .editComment(let classId, let commentId, _):
+            return "/\(version)/courses/\(classId)/comments/\(commentId)"
         }
     }
     
@@ -54,7 +63,11 @@ enum Router: URLRequestConvertible, URLConvertible {
                 "email": email,
                 "password": password
             ]
-        case .lookupClass, .fetchImage, .getDetail, .lookupComment:
+        case .postComment(_, let content), .editComment(_, _, let content):
+            return [
+                "content": content
+            ]
+        case .lookupClass, .fetchImage, .getDetail, .lookupComment, .deleteComment:
             return nil
         }
     }
@@ -70,9 +83,15 @@ enum Router: URLRequestConvertible, URLConvertible {
                 .contentType,
                 .sesacKey
             ])
-        case .lookupClass, .fetchImage, .getDetail, .lookupComment:
+        case .lookupClass, .fetchImage, .getDetail, .lookupComment, .deleteComment:
             return Headers.asHTTPHeaders([
                 .authorization,
+                .sesacKey
+            ])
+        case .postComment, .editComment:
+            return Headers.asHTTPHeaders([
+                .authorization,
+                .contentType,
                 .sesacKey
             ])
         }

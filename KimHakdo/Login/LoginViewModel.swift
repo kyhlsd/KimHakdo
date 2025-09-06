@@ -72,6 +72,7 @@ final class LoginViewModel: BaseViewModel {
                 switch result {
                 case .success(let value):
                     owner.saveToken(token: value.accessToken)
+                    owner.saveId(userId: value.userId)
                     convertToLookupVC.accept(())
                 case .failure(let error):
                     errorAlert.accept(error.localizedDescription)
@@ -90,6 +91,10 @@ final class LoginViewModel: BaseViewModel {
     
     private func saveToken(token: String) {
         UserDefaultHelper.token = token
+    }
+
+    private func saveId(userId: String) {
+        UserDefaultHelper.userId = userId
     }
     
     private func validateTexts(texts: (String, String)) -> Single<Result<Void, LoginInputError>> {

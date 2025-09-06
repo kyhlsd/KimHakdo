@@ -36,6 +36,35 @@ final class NetworkManager {
         monitor.cancel()
     }
     
+    func callRequestWithNoResponse(url: Router) -> Single<Result<Void, APIError>> {
+        return Single.create { [weak self] observer in
+            guard let self else {
+                observer(.success(.failure(.unknown)))
+                return Disposables.create()
+            }
+            guard isConnected else {
+                observer(.success(.failure(.network)))
+                return Disposables.create()
+            }
+            
+            AF.request(url)
+                .validate()
+                .response { response in
+                    switch response.result {
+                    case .success:
+                        observer(.success(.success(())))
+                    case .failure:
+                        if let data = response.data, let errorResult = try? JSONDecoder().decode(APIErrorResult.self, from: data) {
+                            observer(.success(.failure(.some(message: errorResult.message))))
+                        } else {
+                            observer(.success(.failure(APIError.unknown)))
+                        }
+                    }
+                }
+            return Disposables.create()
+        }
+    }
+    
     func callRequest<T: Decodable> (url: Router, type: T.Type = T.self) -> Single<Result<T, APIError>> {
         return Single.create { [weak self] observer in
             guard let self else {
@@ -47,7 +76,9 @@ final class NetworkManager {
                 return Disposables.create()
             }
             
-            AF.request(url).responseDecodable(of: type) { response in
+            AF.request(url)
+                .validate()
+                .responseDecodable(of: type) { response in
                 switch response.result {
                 case .success(let value):
                     observer(.success(.success(value)))
