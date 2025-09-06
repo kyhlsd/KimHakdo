@@ -36,8 +36,8 @@ final class CommentsViewController: UIViewController, BaseViewController {
     }
 
     func bind() {
-        let moreButtonTap = PublishRelay<String>()
-        let editTap = PublishRelay<String>()
+        let moreButtonTap = PublishRelay<Comment>()
+        let editTap = PublishRelay<Comment>()
         let deleteTap = PublishRelay<String>()
         
         let input = CommentsViewModel.Input(
@@ -68,14 +68,15 @@ final class CommentsViewController: UIViewController, BaseViewController {
             .disposed(by: disposeBag)
            
         output.presentEditActionSheet
-            .bind(with: self) { owner, commentId in
-                owner.presentEditActionSheet(commentId: commentId, editRelay: editTap, deleteRelay: deleteTap)
+            .bind(with: self) { owner, comment in
+                owner.presentEditActionSheet(comment: comment, editRelay: editTap, deleteRelay: deleteTap)
             }
             .disposed(by: disposeBag)
         
         output.pushPostCommentVC
-            .bind(with: self) { owner, info in
-                owner.navigationController?.pushViewController(PostCommentViewController(classInfo: info), animated: true)
+            .bind(with: self) { owner, data in
+                let (info, prevComment) = data
+                owner.navigationController?.pushViewController(PostCommentViewController(classInfo: info, prevComment: prevComment), animated: true)
             }
             .disposed(by: disposeBag)
         
@@ -96,14 +97,14 @@ final class CommentsViewController: UIViewController, BaseViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: .comment, style: .done, target: self, action: nil)
     }
     
-    private func presentEditActionSheet(commentId: String, editRelay: PublishRelay<String>, deleteRelay: PublishRelay<String>) {
+    private func presentEditActionSheet(comment: Comment, editRelay: PublishRelay<Comment>, deleteRelay: PublishRelay<String>) {
         let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         actionSheet.addAction(UIAlertAction(title: "댓글 수정", style: .default, handler: { _ in
-            editRelay.accept(commentId)
+            editRelay.accept(comment)
         }))
         actionSheet.addAction(UIAlertAction(title: "댓글 삭제", style: .destructive, handler: { _ in
-            deleteRelay.accept(commentId)
+            deleteRelay.accept(comment.commentId)
         }))
         actionSheet.addAction(UIAlertAction(title: "취소", style: .cancel))
         

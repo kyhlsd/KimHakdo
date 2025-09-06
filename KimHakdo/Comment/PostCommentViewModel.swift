@@ -12,6 +12,11 @@ import RxCocoa
 final class PostCommentViewModel: BaseViewModel {
     
     private let classInfo: ClassCoreInfo
+    private let prevComment: Comment?
+    private var isNew: Bool {
+        return prevComment == nil
+    }
+    
     private let maxCount = 200
     private let minCount = 2
     private let warningCount = 150
@@ -28,11 +33,12 @@ final class PostCommentViewModel: BaseViewModel {
     }
     
     struct Output {
+        let navTitle: BehaviorRelay<String>
         let category: BehaviorRelay<String>
-        let title: BehaviorRelay<String>
+        let classTitle: BehaviorRelay<String>
         let countDescription: BehaviorRelay<String>
         let isPlaceholder: BehaviorRelay<Bool>
-        let placeholder: BehaviorRelay<String>
+        let contentText: BehaviorRelay<String>
         let countWarning: BehaviorRelay<Bool>
         let saveEnabled: BehaviorRelay<Bool>
         let popVC: PublishRelay<Void>
@@ -40,21 +46,26 @@ final class PostCommentViewModel: BaseViewModel {
         let errorAlert: PublishRelay<String>
     }
     
-    init(classInfo: ClassCoreInfo) {
+    init(classInfo: ClassCoreInfo, prevComment: Comment?) {
         self.classInfo = classInfo
+        self.prevComment = prevComment
     }
     
     func transform(input: Input) -> Output {
+        let navTitle = BehaviorRelay(value: isNew ? "댓글 작성" : "댓글 수정")
         let category = BehaviorRelay(value: classInfo.category.description)
-        let title = BehaviorRelay(value: classInfo.title)
+        let classTitle = BehaviorRelay(value: classInfo.title)
         let countDescription = BehaviorRelay(value: getCountDescription(count: 0))
-        let isPlaceholder = BehaviorRelay(value: true)
-        let placeholder = BehaviorRelay(value: placeholderText)
+        let isPlaceholder = BehaviorRelay(value: isNew)
+        let contentText = BehaviorRelay(value: prevComment?.content ?? placeholderText)
         let countWarning = BehaviorRelay(value: false)
         let saveEnabled = BehaviorRelay(value: false)
         let popVC = PublishRelay<Void>()
         let toastMessage = PublishRelay<String>()
         let errorAlert = PublishRelay<String>()
+        
+        let postComment = PublishRelay<Void>()
+        let editComment = PublishRelay<Void>()
         
         input.didBeginEditing
             .withLatestFrom(input.contentText.orEmpty)
@@ -64,7 +75,7 @@ final class PostCommentViewModel: BaseViewModel {
             }
             .bind { _ in
                 isPlaceholder.accept(false)
-                placeholder.accept("")
+                contentText.accept("")
             }
             .disposed(by: disposeBag)
         
@@ -74,7 +85,7 @@ final class PostCommentViewModel: BaseViewModel {
             .filter { $0.isEmpty }
             .bind(with: self) { owner, _ in
                 isPlaceholder.accept(true)
-                placeholder.accept(owner.placeholderText)
+                contentText.accept(owner.placeholderText)
             }
             .disposed(by: disposeBag)
         
@@ -106,6 +117,16 @@ final class PostCommentViewModel: BaseViewModel {
 
         input.saveButtonTap?
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
+            .bind(with: self) { owner, _ in
+                if owner.isNew {
+                    postComment.accept(())
+                } else {
+                    editComment.accept(())
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        postComment
             .withLatestFrom(input.contentText.orEmpty)
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .flatMap { [weak self] content in
@@ -125,18 +146,39 @@ final class PostCommentViewModel: BaseViewModel {
                 }
             }
             .disposed(by: disposeBag)
-            
+        
+        editComment
+            .withLatestFrom(input.contentText.orEmpty)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .flatMap { [weak self] content in
+                guard let self, let prevCommentId = self.prevComment?.commentId else {
+                    return Single<Result<Comment, APIError>>.just(.failure(.unknown))
+                }
+                
+                return NetworkManager.shared.callRequest(url: .editComment(classId: classInfo.classId, commentId: prevCommentId, content: content), type: Comment.self)
+            }
+            .bind { result in
+                switch result {
+                case .success:
+                    toastMessage.accept("댓글이 수정되었습니다.")
+                    popVC.accept(())
+                case .failure(let error):
+                    errorAlert.accept(error.localizedDescription)
+                }
+            }
+            .disposed(by: disposeBag)
         
         input.dismissButtonTap?
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
             .bind(to: popVC)
             .disposed(by: disposeBag)
         
-        return Output(category: category,
-                      title: title,
+        return Output(navTitle: navTitle,
+                      category: category,
+                      classTitle: classTitle,
                       countDescription: countDescription,
                       isPlaceholder: isPlaceholder,
-                      placeholder: placeholder,
+                      contentText: contentText,
                       countWarning: countWarning,
                       saveEnabled: saveEnabled,
                       popVC: popVC,

@@ -15,8 +15,8 @@ final class PostCommentViewController: UIViewController, BaseViewController {
     let viewModel: PostCommentViewModel
     private let disposeBag = DisposeBag()
     
-    init(classInfo: ClassCoreInfo) {
-        self.viewModel = PostCommentViewModel(classInfo: classInfo)
+    init(classInfo: ClassCoreInfo, prevComment: Comment?) {
+        self.viewModel = PostCommentViewModel(classInfo: classInfo, prevComment: prevComment)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -49,11 +49,15 @@ final class PostCommentViewController: UIViewController, BaseViewController {
         )
         let output = viewModel.transform(input: input)
         
+        output.navTitle
+            .bind(to: navigationItem.rx.title)
+            .disposed(by: disposeBag)
+        
         output.category
             .bind(to: mainView.categoryLabel.rx.text)
             .disposed(by: disposeBag)
         
-        output.title
+        output.classTitle
             .bind(to: mainView.titleLabel.rx.text)
             .disposed(by: disposeBag)
             
@@ -66,7 +70,7 @@ final class PostCommentViewController: UIViewController, BaseViewController {
             .bind(to: mainView.textView.rx.textColor)
             .disposed(by: disposeBag)
         
-        output.placeholder
+        output.contentText
             .bind(to: mainView.textView.rx.text)
             .disposed(by: disposeBag)
         
@@ -101,7 +105,6 @@ final class PostCommentViewController: UIViewController, BaseViewController {
     }
     
     private func setupNavItem() {
-        navigationItem.title = "댓글 작성"
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "확인", style: .done, target: self, action: nil)
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "xmark"), style: .done, target: self, action: nil)
     }

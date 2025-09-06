@@ -26,11 +26,11 @@ final class MyCommentTableViewCell: CommentTableViewCell {
         disposeBag = DisposeBag()
     }
     
-    func setData(data: Comment, to: PublishRelay<String>) {
+    func setData(data: Comment, to: PublishRelay<Comment>) {
         super.setData(data: data)
         
         moreButton.rx.tap
-            .map { _ in data.commentId }
+            .map { _ in data }
             .bind(to: to)
             .disposed(by: disposeBag)
     }

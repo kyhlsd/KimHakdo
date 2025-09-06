@@ -21,8 +21,8 @@ final class CommentsViewModel: BaseViewModel {
     }
     
     struct Input {
-        let moreButtonTap: PublishRelay<String>
-        let editTap: PublishRelay<String>
+        let moreButtonTap: PublishRelay<Comment>
+        let editTap: PublishRelay<Comment>
         let deleteTap: PublishRelay<String>
         let navItemTap: ControlEvent<Void>?
     }
@@ -30,8 +30,8 @@ final class CommentsViewModel: BaseViewModel {
     struct Output {
         let commentDataList: BehaviorRelay<[(Comment, Bool)]>
         let navTitle: Observable<String>
-        let presentEditActionSheet: PublishRelay<String>
-        let pushPostCommentVC: PublishRelay<ClassCoreInfo>
+        let presentEditActionSheet: PublishRelay<Comment>
+        let pushPostCommentVC: PublishRelay<(ClassCoreInfo, Comment?)>
         let toastMessage: PublishRelay<String>
         let errorAlert: PublishRelay<String>
     }
@@ -44,8 +44,8 @@ final class CommentsViewModel: BaseViewModel {
             }
         let commentDataList = BehaviorRelay(value: commentData)
         let navTitle = Observable.just(self.classCoreInfo.title)
-        let presentEditActionSheet = PublishRelay<String>()
-        let pushPostCommentVC = PublishRelay<ClassCoreInfo>()
+        let presentEditActionSheet = PublishRelay<Comment>()
+        let pushPostCommentVC = PublishRelay<(ClassCoreInfo, Comment?)>()
         let toastMessage = PublishRelay<String>()
         let errorAlert = PublishRelay<String>()
         
@@ -54,10 +54,12 @@ final class CommentsViewModel: BaseViewModel {
             .bind(to: presentEditActionSheet)
             .disposed(by: disposeBag)
         
-        // editMode
         input.editTap
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
-            .compactMap { [weak self] _ in self?.classCoreInfo }
+            .compactMap { [weak self] comment in
+                guard let self else { return nil }
+                return (self.classCoreInfo, comment)
+            }
             .bind(to: pushPostCommentVC)
             .disposed(by: disposeBag)
         
@@ -81,7 +83,10 @@ final class CommentsViewModel: BaseViewModel {
         
         input.navItemTap?
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
-            .compactMap { [weak self] _ in self?.classCoreInfo }
+            .compactMap { [weak self] _ in
+                guard let self else { return nil }
+                return (self.classCoreInfo, nil)
+            }
             .bind(to: pushPostCommentVC)
             .disposed(by: disposeBag)
         
