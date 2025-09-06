@@ -42,6 +42,8 @@ final class PostCommentViewController: UIViewController, BaseViewController {
     func bind() {
         let input = PostCommentViewModel.Input(
             contentText: mainView.textView.rx.text,
+            didBeginEditing: mainView.textView.rx.didBeginEditing,
+            didEndEditing: mainView.textView.rx.didEndEditing,
             saveButtonTap: navigationItem.rightBarButtonItem?.rx.tap,
             dismissButtonTap: navigationItem.leftBarButtonItem?.rx.tap
         )
@@ -57,6 +59,15 @@ final class PostCommentViewController: UIViewController, BaseViewController {
             
         output.countDescription
             .bind(to: mainView.countLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        output.isPlaceholder
+            .map { $0 ? UIColor.disabled : UIColor.darkGray }
+            .bind(to: mainView.textView.rx.textColor)
+            .disposed(by: disposeBag)
+        
+        output.placeholder
+            .bind(to: mainView.textView.rx.text)
             .disposed(by: disposeBag)
         
         output.countWarning

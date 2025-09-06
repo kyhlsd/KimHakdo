@@ -15,10 +15,14 @@ final class PostCommentViewModel: BaseViewModel {
     private let maxCount = 200
     private let minCount = 2
     private let warningCount = 150
+    private let placeholderText = "댓글을\u{00A0}작성해주세요."
+    
     private let disposeBag = DisposeBag()
     
     struct Input {
         let contentText: ControlProperty<String?>
+        let didBeginEditing: ControlEvent<Void>
+        let didEndEditing: ControlEvent<Void>
         let saveButtonTap: ControlEvent<()>?
         let dismissButtonTap: ControlEvent<()>?
     }
@@ -27,6 +31,8 @@ final class PostCommentViewModel: BaseViewModel {
         let category: BehaviorRelay<String>
         let title: BehaviorRelay<String>
         let countDescription: BehaviorRelay<String>
+        let isPlaceholder: BehaviorRelay<Bool>
+        let placeholder: BehaviorRelay<String>
         let countWarning: BehaviorRelay<Bool>
         let saveEnabled: BehaviorRelay<Bool>
         let popVC: PublishRelay<Void>
@@ -41,23 +47,42 @@ final class PostCommentViewModel: BaseViewModel {
     func transform(input: Input) -> Output {
         let category = BehaviorRelay(value: classInfo.category.description)
         let title = BehaviorRelay(value: classInfo.title)
-        let countDescription = BehaviorRelay(value: "0 / \(maxCount)")
+        let countDescription = BehaviorRelay(value: getCountDescription(count: 0))
+        let isPlaceholder = BehaviorRelay(value: true)
+        let placeholder = BehaviorRelay(value: placeholderText)
         let countWarning = BehaviorRelay(value: false)
         let saveEnabled = BehaviorRelay(value: false)
         let popVC = PublishRelay<Void>()
         let toastMessage = PublishRelay<String>()
         let errorAlert = PublishRelay<String>()
         
-        input.contentText
-            .orEmpty
-            .distinctUntilChanged()
-            .map { $0.isEmpty }
+        input.didBeginEditing
+            .withLatestFrom(input.contentText.orEmpty)
+            .filter { [weak self] text in
+                guard let self else { return false }
+                return text == self.placeholderText
+            }
+            .bind { _ in
+                isPlaceholder.accept(false)
+                placeholder.accept("")
+            }
+            .disposed(by: disposeBag)
+        
+        input.didEndEditing
+            .withLatestFrom(input.contentText.orEmpty)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { $0.isEmpty }
+            .bind(with: self) { owner, _ in
+                isPlaceholder.accept(true)
+                placeholder.accept(owner.placeholderText)
+            }
+            .disposed(by: disposeBag)
         
         let count = input.contentText
             .orEmpty
             .distinctUntilChanged { $0.count == $1.count }
-            .map {
-                 $0.ranges(of: /\S/).count
+            .compactMap { [weak self] in
+                self?.calculateCount(text: $0)
             }
             .distinctUntilChanged()
             .share()
@@ -110,12 +135,19 @@ final class PostCommentViewModel: BaseViewModel {
         return Output(category: category,
                       title: title,
                       countDescription: countDescription,
+                      isPlaceholder: isPlaceholder,
+                      placeholder: placeholder,
                       countWarning: countWarning,
                       saveEnabled: saveEnabled,
                       popVC: popVC,
                       toastMessage: toastMessage,
                       errorAlert: errorAlert
         )
+    }
+    
+    private func calculateCount(text: String) -> Int {
+        if text == placeholderText { return 0 }
+        return text.ranges(of: /\S/).count
     }
     
     private func getCountDescription(count: Int) -> String {
