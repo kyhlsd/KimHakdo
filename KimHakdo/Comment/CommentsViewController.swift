@@ -39,7 +39,6 @@ final class CommentsViewController: UIViewController, BaseViewController {
         let moreButtonTap = PublishRelay<String>()
         
         let input = CommentsViewModel.Input(
-            willDisplayCell: mainView.tableView.rx.willDisplayCell,
             moreButtonTap: moreButtonTap,
             navItemTap: navigationItem.rightBarButtonItem?.rx.tap
         )
@@ -57,12 +56,6 @@ final class CommentsViewController: UIViewController, BaseViewController {
                     cell.setData(data: comment)
                     return cell
                 }
-            }
-            .disposed(by: disposeBag)
-
-        output.scrollToLast
-            .bind(with: self) { owner, indexPath in
-                owner.mainView.tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
             }
             .disposed(by: disposeBag)
         

@@ -21,14 +21,12 @@ final class CommentsViewModel: BaseViewModel {
     }
     
     struct Input {
-        let willDisplayCell: ControlEvent<WillDisplayCellEvent>
         let moreButtonTap: PublishRelay<String>
         let navItemTap: ControlEvent<Void>?
     }
     
     struct Output {
         let commentDataList: BehaviorRelay<[(Comment, Bool)]>
-        let scrollToLast: PublishRelay<IndexPath>
         let navTitle: Observable<String>
         let presentEditActionSheet: PublishRelay<String>
         let pushPostCommentVC: PublishRelay<ClassCoreInfo>
@@ -36,23 +34,14 @@ final class CommentsViewModel: BaseViewModel {
     
     func transform(input: Input) -> Output {
         let commentData = self.comments
-            .sorted { $0.createdAt < $1.createdAt }
             .map { [weak self] comment in
                 guard let self else { return (comment, false) }
                 return (comment, isMine(id: comment.creator.userId))
             }
         let commentDataList = BehaviorRelay(value: commentData)
-        let scrollToLast = PublishRelay<IndexPath>()
         let navTitle = Observable.just(self.classCoreInfo.title)
         let presentEditActionSheet = PublishRelay<String>()
         let pushPostCommentVC = PublishRelay<ClassCoreInfo>()
-        
-        input.willDisplayCell
-            .take(1)
-            .withLatestFrom(commentDataList)
-            .map { IndexPath(row: $0.count - 1, section: 0) }
-            .bind(to: scrollToLast)
-            .disposed(by: disposeBag)
         
         input.moreButtonTap
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
@@ -67,7 +56,6 @@ final class CommentsViewModel: BaseViewModel {
         
         return Output(
             commentDataList: commentDataList,
-            scrollToLast: scrollToLast,
             navTitle: navTitle,
             presentEditActionSheet: presentEditActionSheet,
             pushPostCommentVC: pushPostCommentVC
