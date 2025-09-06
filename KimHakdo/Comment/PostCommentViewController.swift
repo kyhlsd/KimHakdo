@@ -41,7 +41,7 @@ final class PostCommentViewController: UIViewController, BaseViewController {
     
     func bind() {
         let input = PostCommentViewModel.Input(
-            textInput: mainView.textView.rx.text,
+            contentText: mainView.textView.rx.text,
             saveButtonTap: navigationItem.rightBarButtonItem?.rx.tap,
             dismissButtonTap: navigationItem.leftBarButtonItem?.rx.tap
         )
@@ -59,6 +59,11 @@ final class PostCommentViewController: UIViewController, BaseViewController {
             .bind(to: mainView.countLabel.rx.text)
             .disposed(by: disposeBag)
         
+        output.countWarning
+            .map { $0 ? UIColor.point : UIColor.black }
+            .bind(to: mainView.countLabel.rx.textColor)
+            .disposed(by: disposeBag)
+        
         output.saveEnabled
             .bind(with: self) { owner, isEnabled in
                 owner.navigationItem.rightBarButtonItem?.isEnabled = isEnabled
@@ -68,6 +73,18 @@ final class PostCommentViewController: UIViewController, BaseViewController {
         output.popVC
             .bind(with: self) { owner, _ in
                 owner.navigationController?.popViewController(animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        output.toastMessage
+            .bind(with: self) { owner, message in
+                owner.navigationController?.showDefaultToast(message: message)
+            }
+            .disposed(by: disposeBag)
+        
+        output.errorAlert
+            .bind(with: self) { owner, message in
+                owner.presentDefaultAlert(title: "댓글 저장 실패", message: message)
             }
             .disposed(by: disposeBag)
     }

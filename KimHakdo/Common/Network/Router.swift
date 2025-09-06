@@ -14,6 +14,7 @@ enum Router: URLRequestConvertible, URLConvertible {
     case fetchImage(url: String)
     case getDetail(id: String)
     case lookupComment(id: String)
+    case postComment(id: String, content: String)
     
     var baseURL: String {
        return APIInfo.baseURL
@@ -21,7 +22,7 @@ enum Router: URLRequestConvertible, URLConvertible {
     
     var method: HTTPMethod {
         switch self {
-        case .login:
+        case .login, .postComment:
             return .post
         case .lookupClass, .fetchImage, .getDetail, .lookupComment:
             return .get
@@ -44,6 +45,8 @@ enum Router: URLRequestConvertible, URLConvertible {
             return "/\(version)/courses/\(id)"
         case .lookupComment(let id):
             return "/\(version)/courses/\(id)/comments"
+        case .postComment(let id, _):
+            return "/\(version)/courses/\(id)/comments"
         }
     }
     
@@ -53,6 +56,10 @@ enum Router: URLRequestConvertible, URLConvertible {
             return [
                 "email": email,
                 "password": password
+            ]
+        case .postComment(_, let content):
+            return [
+                "content": content
             ]
         case .lookupClass, .fetchImage, .getDetail, .lookupComment:
             return nil
@@ -73,6 +80,12 @@ enum Router: URLRequestConvertible, URLConvertible {
         case .lookupClass, .fetchImage, .getDetail, .lookupComment:
             return Headers.asHTTPHeaders([
                 .authorization,
+                .sesacKey
+            ])
+        case .postComment:
+            return Headers.asHTTPHeaders([
+                .authorization,
+                .contentType,
                 .sesacKey
             ])
         }
