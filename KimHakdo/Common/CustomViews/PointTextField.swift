@@ -22,6 +22,7 @@ final class PointTextField: UITextField {
         layer.borderWidth = 1
         layer.cornerRadius = CornerRadius.small
         clipsToBounds = true
+        autocorrectionType = .no
     }
     
     @available(*, unavailable)

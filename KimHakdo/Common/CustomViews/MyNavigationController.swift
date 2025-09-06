@@ -1,5 +1,5 @@
 //
-//  CustomNavigationController.swift
+//  MyNavigationController.swift
 //  KimHakdo
 //
 //  Created by 김영훈 on 9/4/25.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class CustomNavigationController: UINavigationController {
+final class MyNavigationController: UINavigationController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
