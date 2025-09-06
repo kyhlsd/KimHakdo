@@ -31,7 +31,7 @@ final class SearchClassView: BaseView {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.register(cellClass: SearchClassCollectionViewCell.self)
         collectionView.backgroundColor = .clear
-        // TODO: 키보드 내리기
+        collectionView.keyboardDismissMode = .onDrag
         return collectionView
     }()
     
@@ -43,7 +43,6 @@ final class SearchClassView: BaseView {
     
     override func setupView() {
         backgroundColor = .background
-        guideLabel.text = "원하는 클래스가 있으신가요?"
     }
     
     override func setupHierarchy() {

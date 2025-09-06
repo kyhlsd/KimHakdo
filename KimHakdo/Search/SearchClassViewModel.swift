@@ -14,14 +14,73 @@ final class SearchClassViewModel: BaseViewModel {
     private let disposeBag = DisposeBag()
     
     struct Input {
-        
+        let searchText: ControlProperty<String?>
+        let searchButtonClicked: ControlEvent<Void>
+        let willDisplayCell: Observable<Void>
+        let classSelected: ControlEvent<ClassResult>
     }
     
     struct Output {
-        
+        let guideText: BehaviorRelay<String>
+        let searchedClassList: PublishRelay<[ClassResult]>
+        let scrollToTop: PublishRelay<IndexPath>
+        let pushDetailVC: PublishRelay<String>
+        let errorAlert: PublishRelay<String>
     }
     
     func transform(input: Input) -> Output {
-        return Output()
+        let guideText = BehaviorRelay(value: "원하는 클래스가 있으신가요?")
+        let searchedClassList = PublishRelay<[ClassResult]>()
+        let scrollToTop = PublishRelay<IndexPath>()
+        let pushDetailVC = PublishRelay<String>()
+        let errorAlert = PublishRelay<String>()
+        
+        let lastUpdateDate = PublishRelay<Date>()
+        
+        input.searchButtonClicked
+            .withLatestFrom(input.searchText.orEmpty)
+            .filter { $0.trimmingCharacters(in: .whitespacesAndNewlines).count >= 1 }
+            .distinctUntilChanged()
+            .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
+            .flatMap {
+                NetworkManager.shared.callRequest(url: .searchClass(keyword: $0), type: ClassListResult.self)
+            }
+            .bind { result in
+                switch result {
+                case .success(let value):
+                    searchedClassList.accept(value.data)
+                    lastUpdateDate.accept(Date())
+                case .failure(let error):
+                    errorAlert.accept(error.localizedDescription)
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        searchedClassList
+            .map { $0.isEmpty ? "검색 결과가 없습니다" : ""}
+            .distinctUntilChanged()
+            .bind(to: guideText)
+            .disposed(by: disposeBag)
+        
+        input.willDisplayCell
+            .withLatestFrom(lastUpdateDate)
+            .distinctUntilChanged()
+            .map { _ in IndexPath(item: 0, section: 0) }
+            .bind(to: scrollToTop)
+            .disposed(by: disposeBag)
+        
+        input.classSelected
+            .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
+            .map { $0.classId }
+            .bind(to: pushDetailVC)
+            .disposed(by: disposeBag)
+        
+        return Output(
+            guideText: guideText,
+            searchedClassList: searchedClassList,
+            scrollToTop: scrollToTop,
+            pushDetailVC: pushDetailVC,
+            errorAlert: errorAlert
+        )
     }
 }

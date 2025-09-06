@@ -74,7 +74,7 @@ final class SearchClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         
         setPriceLabels(price: data.price, salePrice: data.salePrice, salePercentage: data.salePercentage)
         
-        favoriteButton.setStatus(isFavorited: data.isLiked)
+        favoriteButton.setStatusWithBorder(isFavorited: data.isLiked)
     }
     
     private func setPriceLabels(price: Int?, salePrice: Int?, salePercentage: String?) {
@@ -109,6 +109,9 @@ final class SearchClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         }
         
         categoryContainer.addSubview(categoryLabel)
+        
+        defaultPriceLabel.setContentHuggingPriority(.required, for: .horizontal)
+        pointPriceLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         [defaultPriceLabel, pointPriceLabel].forEach {
             priceStackView.addArrangedSubview($0)
         }
@@ -152,6 +155,7 @@ final class SearchClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         strikeThroughPriceLabel.snp.makeConstraints { make in
             make.leading.equalTo(categoryContainer)
             make.trailing.equalTo(titleLabel)
+            make.bottom.equalTo(priceStackView.snp.top)
         }
         
         separatorLine.snp.makeConstraints { make in

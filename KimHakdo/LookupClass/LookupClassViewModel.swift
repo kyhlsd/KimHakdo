@@ -77,7 +77,7 @@ final class LookupClassViewModel: BaseViewModel {
         
         input.callRequest
             .flatMap { _ in
-                NetworkManager.shared.callRequest(url: .lookupClass, type: LookupClassResult.self)
+                NetworkManager.shared.callRequest(url: .lookupClass, type: ClassListResult.self)
             }
             .bind { result in
                 switch result {
