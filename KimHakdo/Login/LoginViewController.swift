@@ -78,7 +78,7 @@ final class LoginViewController: UIViewController, BaseViewController {
               let window = sceneDelegate.window else { return }
         
         UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve) {
-            window.rootViewController = LookupClassViewController()
+            window.rootViewController = MyTabBarController()
         }
     }
 }

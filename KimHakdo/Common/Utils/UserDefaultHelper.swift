@@ -13,6 +13,12 @@ enum UserDefaultHelper {
     
     @UserDefault(key: "ID", type: String.self)
     static var userId: String?
+    
+    static func clear() {
+        UserDefaults.standard.dictionaryRepresentation().keys.forEach {
+            UserDefaults.standard.removeObject(forKey: $0.description)
+        }
+    }
 }
 
 @propertyWrapper
