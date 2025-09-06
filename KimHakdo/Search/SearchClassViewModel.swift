@@ -18,12 +18,14 @@ final class SearchClassViewModel: BaseViewModel {
         let searchButtonClicked: ControlEvent<Void>
         let willDisplayCell: Observable<Void>
         let classSelected: ControlEvent<ClassResult>
+        let collectionViewTapGesture: Observable<Void>
     }
     
     struct Output {
         let guideText: BehaviorRelay<String>
         let searchedClassList: PublishRelay<[ClassResult]>
         let scrollToTop: PublishRelay<IndexPath>
+        let hideKeyboard: PublishRelay<Void>
         let pushDetailVC: PublishRelay<String>
         let errorAlert: PublishRelay<String>
     }
@@ -32,6 +34,7 @@ final class SearchClassViewModel: BaseViewModel {
         let guideText = BehaviorRelay(value: "원하는 클래스가 있으신가요?")
         let searchedClassList = PublishRelay<[ClassResult]>()
         let scrollToTop = PublishRelay<IndexPath>()
+        let hideKeyboard = PublishRelay<Void>()
         let pushDetailVC = PublishRelay<String>()
         let errorAlert = PublishRelay<String>()
         
@@ -62,11 +65,19 @@ final class SearchClassViewModel: BaseViewModel {
             .bind(to: guideText)
             .disposed(by: disposeBag)
         
-        input.willDisplayCell
+        let willDisplayCell = input.willDisplayCell
             .withLatestFrom(lastUpdateDate)
             .distinctUntilChanged()
+            .share()
+        
+        willDisplayCell
             .map { _ in IndexPath(item: 0, section: 0) }
             .bind(to: scrollToTop)
+            .disposed(by: disposeBag)
+        
+        willDisplayCell
+            .map { _ in () }
+            .bind(to: hideKeyboard)
             .disposed(by: disposeBag)
         
         input.classSelected
@@ -75,10 +86,16 @@ final class SearchClassViewModel: BaseViewModel {
             .bind(to: pushDetailVC)
             .disposed(by: disposeBag)
         
+        input.collectionViewTapGesture
+            .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
+            .bind(to: hideKeyboard)
+            .disposed(by: disposeBag)
+        
         return Output(
             guideText: guideText,
             searchedClassList: searchedClassList,
             scrollToTop: scrollToTop,
+            hideKeyboard: hideKeyboard,
             pushDetailVC: pushDetailVC,
             errorAlert: errorAlert
         )

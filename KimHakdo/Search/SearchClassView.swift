@@ -35,10 +35,25 @@ final class SearchClassView: BaseView {
         return collectionView
     }()
     
+    let collectionViewTapGesture = {
+        let tapGesture = UITapGestureRecognizer()
+        tapGesture.cancelsTouchesInView = false
+        return tapGesture
+    }()
+    
     let guideLabel = UILabel.create(font: AppFont.body, textColor: .black)
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupTapGesture()
+    }
     
     override func draw(_ rect: CGRect) {
         searchBar.layer.cornerRadius = searchBar.frame.height / 2
+    }
+    
+    private func setupTapGesture() {
+        collectionView.addGestureRecognizer(collectionViewTapGesture)
     }
     
     override func setupView() {

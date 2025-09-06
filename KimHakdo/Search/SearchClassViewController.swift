@@ -44,7 +44,8 @@ final class SearchClassViewController: UIViewController, BaseViewController {
             searchText: mainView.searchBar.rx.text,
             searchButtonClicked: mainView.searchBar.rx.searchButtonClicked,
             willDisplayCell: mainView.collectionView.rx.willDisplayCell.map { _ in () },
-            classSelected: mainView.collectionView.rx.modelSelected(ClassResult.self)
+            classSelected: mainView.collectionView.rx.modelSelected(ClassResult.self),
+            collectionViewTapGesture: mainView.collectionViewTapGesture.rx.event.map { _ in () }
         )
         let output = viewModel.transform(input: input)
         
@@ -61,6 +62,12 @@ final class SearchClassViewController: UIViewController, BaseViewController {
         output.scrollToTop
             .bind(with: self) { owner, indexPath in
                 owner.mainView.collectionView.scrollToItem(at: indexPath, at: .top, animated: false)
+            }
+            .disposed(by: disposeBag)
+        
+        output.hideKeyboard
+            .bind(with: self) { owner, _ in
+                owner.mainView.endEditing(true)
             }
             .disposed(by: disposeBag)
         
