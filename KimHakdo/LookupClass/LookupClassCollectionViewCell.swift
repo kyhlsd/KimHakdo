@@ -102,7 +102,7 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         
         setPriceLabels(price: data.price, salePrice: data.salePrice, salePercentage: data.salePercentage)
         
-        favoriteButton.setStatus(isFavorited: data.isLiked)
+        favoriteButton.setData(classId: data.classId, likeStatus: data.isLiked)
     }
     
     private func setPriceLabels(price: Int?, salePrice: Int?, salePercentage: String?) {

@@ -89,7 +89,7 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
         
         output.isFavorited
             .bind(with: self) { owner, isFavorited in
-                owner.mainView.favoriteButton.setStatusWithBorder(isFavorited: isFavorited)
+                owner.mainView.favoriteButton.setStatusWithBorder(likeStatus: isFavorited)
             }
             .disposed(by: disposeBag)
         

@@ -18,6 +18,7 @@ enum Router: URLRequestConvertible, URLConvertible {
     case deleteComment(classId: String, commentId: String)
     case editComment(classId: String, commentId: String, content: String)
     case searchClass(keyword: String)
+    case updateFavorite(classId: String, isFavorite: Bool)
     
     var baseURL: String {
        return APIInfo.baseURL
@@ -25,7 +26,7 @@ enum Router: URLRequestConvertible, URLConvertible {
     
     var method: HTTPMethod {
         switch self {
-        case .login, .postComment:
+        case .login, .postComment, .updateFavorite:
             return .post
         case .lookupClass, .fetchImage, .getDetail, .lookupComment, .searchClass:
             return .get
@@ -56,6 +57,8 @@ enum Router: URLRequestConvertible, URLConvertible {
             return "/\(version)/courses/\(classId)/comments/\(commentId)"
         case .searchClass:
             return "/\(version)/courses/search"
+        case .updateFavorite(let classId, _):
+            return "/\(version)/courses/\(classId)/like"
         }
     }
     
@@ -69,6 +72,10 @@ enum Router: URLRequestConvertible, URLConvertible {
         case .postComment(_, let content), .editComment(_, _, let content):
             return [
                 "content": content
+            ]
+        case .updateFavorite(_, let isFavorite):
+            return [
+                "like_status": isFavorite
             ]
         case .lookupClass, .fetchImage, .getDetail, .lookupComment, .deleteComment, .searchClass:
             return nil
@@ -93,7 +100,7 @@ enum Router: URLRequestConvertible, URLConvertible {
                 .contentType,
                 .sesacKey
             ])
-        case .lookupClass, .fetchImage, .getDetail, .lookupComment, .deleteComment, .searchClass:
+        case .lookupClass, .fetchImage, .getDetail, .lookupComment, .deleteComment, .searchClass, .updateFavorite:
             return Headers.asHTTPHeaders([
                 .authorization,
                 .sesacKey

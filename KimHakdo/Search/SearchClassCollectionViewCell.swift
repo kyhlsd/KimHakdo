@@ -74,7 +74,7 @@ final class SearchClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         
         setPriceLabels(price: data.price, salePrice: data.salePrice, salePercentage: data.salePercentage)
         
-        favoriteButton.setStatusWithBorder(isFavorited: data.isLiked)
+        favoriteButton.setStatusWithBorder(likeStatus: data.isLiked)
     }
     
     private func setPriceLabels(price: Int?, salePrice: Int?, salePercentage: String?) {
