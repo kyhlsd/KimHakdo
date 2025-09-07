@@ -10,8 +10,7 @@ import RxSwift
 import RxCocoa
 
 protocol FavoriteButtonDelegate: AnyObject {
-    func presentErrorAlert(title: String, message: String)
-    func updateLikeStatus(classId: String, isLiked: Bool)
+    var errorAlert: PublishRelay<(String, String)> { get }
 }
 
 final class FavoriteButton: UIButton {
@@ -62,9 +61,8 @@ final class FavoriteButton: UIButton {
             .bind(with: self) { owner, result in
                 switch result {
                 case .success(let value):
-                    owner.isLiked.accept(value.isLiked)
                     if let classId = owner.classId.value {
-                        owner.delegate?.updateLikeStatus(classId: classId, isLiked: value.isLiked)
+                        NotificationManager.shared.postIsLikedChanged(classId: classId, isLiked: value.isLiked)
                     }
                 case .failure(let error):
                     owner.errorMessage.accept(error.localizedDescription)
@@ -81,7 +79,7 @@ final class FavoriteButton: UIButton {
         
         errorMessage
             .bind(with: self) { owner, message in
-                owner.delegate?.presentErrorAlert(title: "좋아요 상태 변경 실패", message: message)
+                owner.delegate?.errorAlert.accept(("좋아요 상태 변경 실패", message))
             }
             .disposed(by: disposeBag)
     }

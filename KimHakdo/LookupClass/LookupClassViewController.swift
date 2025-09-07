@@ -40,6 +40,7 @@ final class LookupClassViewController: UIViewController, BaseViewController {
             classSelected: mainView.classCollectionView.rx.modelSelected(ClassResult.self)
         )
         let output = viewModel.transform(input: input)
+        
         output.categories
             .bind(to: mainView.categoryCollectionView.rx.items(cellIdentifier: CategoryCollectionViewCell.identifier, cellType: CategoryCollectionViewCell.self)) { _, element, cell in
                 cell.setData(data: element)
@@ -47,8 +48,9 @@ final class LookupClassViewController: UIViewController, BaseViewController {
             .disposed(by: disposeBag)
         
         output.classList
-            .bind(to: mainView.classCollectionView.rx.items(cellIdentifier: LookupClassCollectionViewCell.identifier, cellType: LookupClassCollectionViewCell.self)) { _, element, cell in
+            .bind(to: mainView.classCollectionView.rx.items(cellIdentifier: LookupClassCollectionViewCell.identifier, cellType: LookupClassCollectionViewCell.self)) { [weak self] _, element, cell in
                 cell.setData(data: element)
+                cell.favoriteButton.delegate = self?.viewModel
             }
             .disposed(by: disposeBag)
         
@@ -71,8 +73,9 @@ final class LookupClassViewController: UIViewController, BaseViewController {
             .disposed(by: disposeBag)
         
         output.errorAlert
-            .bind(with: self) { owner, message in
-                owner.presentDefaultAlert(title: "데이터 불러오기 실패", message: message)
+            .bind(with: self) { owner, data in
+                let (title, message) = data
+                owner.presentDefaultAlert(title: title, message: message)
             }
             .disposed(by: disposeBag)
         

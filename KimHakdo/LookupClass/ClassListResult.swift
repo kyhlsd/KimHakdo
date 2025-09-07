@@ -18,7 +18,7 @@ struct ClassResult: Decodable {
     let description: String
     let imageURL: String
     let createdAt: Date
-    let isLiked: Bool
+    var isLiked: Bool
     let creator: Creator
     let price: Int?
     let salePrice: Int?
