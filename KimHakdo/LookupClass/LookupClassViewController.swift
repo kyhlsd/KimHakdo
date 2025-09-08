@@ -72,16 +72,22 @@ final class LookupClassViewController: UIViewController, BaseViewController {
             }
             .disposed(by: disposeBag)
         
+        output.pushDetailVC
+            .bind(with: self) { owner, id in
+                owner.navigationController?.pushViewController(ClassDetailViewController(id: id), animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        output.toastMessage
+            .bind(with: self) { owner, message in
+                owner.showDefaultToast(message: message)
+            }
+            .disposed(by: disposeBag)
+        
         output.errorAlert
             .bind(with: self) { owner, data in
                 let (title, message) = data
                 owner.presentDefaultAlert(title: title, message: message)
-            }
-            .disposed(by: disposeBag)
-        
-        output.pushDetailVC
-            .bind(with: self) { owner, id in
-                owner.navigationController?.pushViewController(ClassDetailViewController(id: id), animated: true)
             }
             .disposed(by: disposeBag)
         

@@ -10,12 +10,14 @@ import RxSwift
 import RxCocoa
 
 protocol FavoriteButtonDelegate: AnyObject {
+    var toastMessage: PublishRelay<String> { get }
     var errorAlert: PublishRelay<(String, String)> { get }
 }
 
 final class FavoriteButton: UIButton {
     
     private let classId = BehaviorRelay<String?>(value: nil)
+    private var classTitle: String? = nil
     private let isLiked = BehaviorRelay<Bool?>(value: nil)
     private let hasBorder = BehaviorRelay(value: false)
     private let errorMessage = PublishRelay<String>()
@@ -33,8 +35,9 @@ final class FavoriteButton: UIButton {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setData(classId: String, isLiked: Bool) {
+    func setData(classId: String, classTitle: String, isLiked: Bool) {
         self.classId.accept(classId)
+        self.classTitle = classTitle
         self.isLiked.accept(isLiked)
     }
     
@@ -44,6 +47,7 @@ final class FavoriteButton: UIButton {
     
     func reset() {
         classId.accept(nil)
+        classTitle = nil
         isLiked.accept(nil)
     }
     
@@ -66,8 +70,11 @@ final class FavoriteButton: UIButton {
             .bind(with: self) { owner, result in
                 switch result {
                 case .success(let value):
-                    if let classId = owner.classId.value {
+                    if let classId = owner.classId.value, let classTitle = owner.classTitle {
                         NotificationManager.shared.postIsLikedChanged(classId: classId, isLiked: value.isLiked)
+                        let isLikedText = value.isLiked ? "클래스를 찜" : "클래스 찜을 취소"
+                        let message = "[\(classTitle)] \(isLikedText)했습니다."
+                        owner.delegate?.toastMessage.accept(message)
                     }
                 case .failure(let error):
                     owner.errorMessage.accept(error.localizedDescription)
