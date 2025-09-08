@@ -9,10 +9,11 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-final class ClassDetailViewModel: BaseViewModel, FavoriteButtonDelegate {
+final class ClassDetailViewModel: BaseViewModel, FavoriteButtonDelegate, ReloadedCommentsDelegate {
     
     private let id: String
     private let disposeBag = DisposeBag()
+    let comments = PublishRelay<[Comment]>()
     let errorAlert = PublishRelay<(String, String)>()
     
     init(id: String) {
@@ -60,7 +61,7 @@ final class ClassDetailViewModel: BaseViewModel, FavoriteButtonDelegate {
         let pushCommentVC = PublishRelay<([Comment], ClassCoreInfo)>()
         let errorAlert = self.errorAlert
                 
-        let comments = PublishRelay<[Comment]>()
+        let comments = self.comments
         let classCoreInfo = PublishRelay<ClassCoreInfo>()
         
         input.callRequestForDetail

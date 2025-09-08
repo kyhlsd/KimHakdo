@@ -9,6 +9,10 @@ import Foundation
 import RxSwift
 import RxCocoa
 
+protocol ReloadedCommentsDelegate: AnyObject {
+    var comments: PublishRelay<[Comment]> { get }
+}
+
 final class CommentsViewModel: BaseViewModel, PostAndEditDelegate {
     
     private let comments: [Comment]
@@ -17,6 +21,8 @@ final class CommentsViewModel: BaseViewModel, PostAndEditDelegate {
     var shouldScrollToTop = false
     let toastMessage = PublishRelay<String>()
     private let disposeBag = DisposeBag()
+    
+    weak var delegate: ReloadedCommentsDelegate?
     
     init(comments: [Comment], classCoreInfo: ClassCoreInfo) {
         self.comments = comments
@@ -114,6 +120,7 @@ final class CommentsViewModel: BaseViewModel, PostAndEditDelegate {
                             (comment, owner.isMine(id: comment.creator.userId))
                         }
                     commentDataList.accept(commentData)
+                    owner.delegate?.comments.accept(value.data)
                 case .failure(let error):
                     errorAlert.accept(("댓글 새로고침 실패", error.localizedDescription))
                 }
