@@ -64,22 +64,3 @@ struct ClassResult: Decodable {
         self.salePrice = try container.decodeIfPresent(Int.self, forKey: .salePrice)
     }
 }
-
-struct Creator: Decodable {
-    let userId: String
-    let nick: String
-    let profileImage: String?
-    
-    enum CodingKeys: String, CodingKey {
-        case userId = "user_id"
-        case nick
-        case profileImage
-    }
-    
-    init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.userId = try container.decode(String.self, forKey: .userId)
-        self.nick = try container.decode(String.self, forKey: .nick)
-        self.profileImage = try container.decodeIfPresent(String.self, forKey: .profileImage)
-    }
-}
