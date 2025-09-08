@@ -87,8 +87,9 @@ final class CommentsViewController: UIViewController, BaseViewController {
             .disposed(by: disposeBag)
         
         output.errorAlert
-            .bind(with: self) { owner, message in
-                owner.presentDefaultAlert(title: "댓글 삭제 실패", message: message)
+            .bind(with: self) { owner, data in
+                let (title, message) = data
+                owner.presentDefaultAlert(title: title, message: message)
             }
             .disposed(by: disposeBag)
     }
