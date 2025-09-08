@@ -64,8 +64,8 @@ final class PostAndEditCommentViewModel: BaseViewModel {
         let toastMessage = PublishRelay<String>()
         let errorAlert = PublishRelay<String>()
         
-        let postComment = PublishRelay<Void>()
-        let editComment = PublishRelay<Void>()
+        let postComment = PublishRelay<String>()
+        let editComment = PublishRelay<String>()
         
         input.didBeginEditing
             .withLatestFrom(input.contentText.orEmpty)
@@ -117,18 +117,18 @@ final class PostAndEditCommentViewModel: BaseViewModel {
 
         input.saveButtonTap?
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
-            .bind(with: self) { owner, _ in
+            .withLatestFrom(input.contentText.orEmpty)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .bind(with: self) { owner, content in
                 if owner.isNew {
-                    postComment.accept(())
+                    postComment.accept(content)
                 } else {
-                    editComment.accept(())
+                    editComment.accept(content)
                 }
             }
             .disposed(by: disposeBag)
         
         postComment
-            .withLatestFrom(input.contentText.orEmpty)
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .flatMap { [weak self] content in
                 guard let self else {
                     return Single<Result<Comment, APIError>>.just(.failure(.unknown))
@@ -148,11 +148,13 @@ final class PostAndEditCommentViewModel: BaseViewModel {
             .disposed(by: disposeBag)
         
         editComment
-            .withLatestFrom(input.contentText.orEmpty)
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .flatMap { [weak self] content in
                 guard let self, let prevCommentId = self.prevComment?.commentId else {
                     return Single<Result<Comment, APIError>>.just(.failure(.unknown))
+                }
+                
+                if let prevComment = self.prevComment, content == prevComment.content {
+                    return Single<Result<Comment, APIError>>.just(.success(prevComment))
                 }
                 
                 return NetworkManager.shared.callRequest(url: .editComment(classId: classInfo.classId, commentId: prevCommentId, content: content), type: Comment.self)
