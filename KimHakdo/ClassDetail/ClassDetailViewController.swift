@@ -91,7 +91,6 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
             .bind(with: self) { owner, data in
                 let (id, isLiked) = data
                 owner.mainView.favoriteButton.setData(classId: id, isLiked: isLiked)
-                owner.mainView.favoriteButton.setBorder(true)
             }
             .disposed(by: disposeBag)
         

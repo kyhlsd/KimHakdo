@@ -106,14 +106,6 @@ final class FavoriteButton: UIButton {
         let resized = image.applyingSymbolConfiguration(config)
         setImage(resized, for: .normal)
     }
-    
-    func setImageWithBorder(isLiked: Bool) {
-        let image = UIImage(systemName: isLiked ? "heart.fill" : "heart")
-        tintColor = isLiked ? .point : .border
-        let config = UIImage.SymbolConfiguration(scale: .large)
-        let resized = image?.applyingSymbolConfiguration(config)
-        setImage(resized, for: .normal)
-    }
 }
 
 struct FavoriteResult: Decodable {

@@ -74,7 +74,7 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             .map { _ in Date() }
             .bind { value in
                 if isLikedUpdated {
-                    isLikedUpdated.toggle()
+                    isLikedUpdated = false
                 } else {
                     lastUpdateDate.accept(value)
                 }
@@ -138,9 +138,9 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
                 $0.classId == classId
             }) {
                 list[index].isLiked = isLiked
+                isLikedUpdated = true
+                totalClass.accept(list)
             }
-            isLikedUpdated = true
-            totalClass.accept(list)
         }
         
         return Output(
