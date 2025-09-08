@@ -10,6 +10,9 @@ import SnapKit
 
 final class LookupClassView: BaseView {
     
+    // MARK: Views
+    private let separatorLine = SeperatorLine()
+    
     let categoryCollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -22,14 +25,7 @@ final class LookupClassView: BaseView {
         collectionView.backgroundColor = .clear
         return collectionView
     }()
-    
-    let countLabel = {
-        let label = UILabel()
-        label.textColor = .black
-        label.font = AppFont.accent
-        return label
-    }()
-    
+    let countLabel = UILabel.create(font: AppFont.accent, textColor: .black)
     let sortButton = {
         var config = UIButton.Configuration.plain()
         config.image = .sort
@@ -41,9 +37,6 @@ final class LookupClassView: BaseView {
         button.configuration = config
         return button
     }()
-    
-    let separatorLine = SeperatorLine()
-    
     let classCollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -65,6 +58,7 @@ final class LookupClassView: BaseView {
         sortButton.configuration?.attributedTitle = AttributedString(title, attributes: titleContainer)
     }
     
+    // MARK: Setups
     override func setupView() {
         backgroundColor = .background
     }

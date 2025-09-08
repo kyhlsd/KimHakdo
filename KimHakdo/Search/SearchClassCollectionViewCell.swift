@@ -20,15 +20,7 @@ final class SearchClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         imageView.clipsToBounds = true
         return imageView
     }()
-    
-    let favoriteButton = {
-        let button = FavoriteButton()
-        button.setBorder(true)
-        return button
-    }()
-    
     private let titleLabel = UILabel.create(font: AppFont.subtitle, textColor: .black)
-    
     private let categoryContainer = {
         let view = UIView()
         view.layer.borderColor = UIColor.point.cgColor
@@ -37,14 +29,22 @@ final class SearchClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         view.clipsToBounds = true
         return view
     }()
-    
     private let categoryLabel = UILabel.create(font: AppFont.caption, textColor: .point)
-    
     private let priceStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.spacing = AppPadding.horizontalInset
         return stackView
+    }()
+    private let strikeThroughPriceLabel = UILabel()
+    private let defaultPriceLabel = UILabel.create(font: AppFont.accent, textColor: .black)
+    private let pointPriceLabel = UILabel.create(font: AppFont.accent, textColor: .point)
+    private let separatorLine = SeperatorLine()
+    
+    let favoriteButton = {
+        let button = FavoriteButton()
+        button.setBorder(true)
+        return button
     }()
     
     private let attributes: [NSAttributedString.Key: Any] = [
@@ -52,14 +52,6 @@ final class SearchClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         .foregroundColor: UIColor.disabled,
         .strikethroughStyle:  NSUnderlineStyle.single.rawValue
     ]
-    
-    private let strikeThroughPriceLabel = UILabel()
-    
-    private let defaultPriceLabel = UILabel.create(font: AppFont.accent, textColor: .black)
-    
-    private let pointPriceLabel = UILabel.create(font: AppFont.accent, textColor: .point)
-    
-    private let separatorLine = SeperatorLine()
     
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -107,6 +99,7 @@ final class SearchClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         pointPriceLabel.text = salePercentage
     }
     
+    // MARK: Setups
     override func setupHierarchy() {
         [imageView, favoriteButton, titleLabel, categoryContainer, strikeThroughPriceLabel, priceStackView, separatorLine].forEach {
             contentView.addSubview($0)

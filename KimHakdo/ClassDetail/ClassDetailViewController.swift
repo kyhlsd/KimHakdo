@@ -102,12 +102,10 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
             .disposed(by: disposeBag)
         
         output.commentsButtonEnabled
-            .map { PointButton.getColor($0) }
-            .bind(to: mainView.showCommentButton.rx.backgroundColor)
-            .disposed(by: disposeBag)
-        
-        output.commentsButtonEnabled
-            .bind(to: mainView.showCommentButton.rx.isEnabled)
+            .bind(with: self, onNext: { owner, isEnabled in
+                owner.mainView.showCommentButton.isEnabled = isEnabled
+                owner.mainView.showCommentButton.setColor(isEnabled)
+            })
             .disposed(by: disposeBag)
         
         output.pushCommentVC

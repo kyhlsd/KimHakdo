@@ -10,13 +10,15 @@ import SnapKit
 
 final class SettingView: BaseView {
     
+    // MARK: Views
     let logoutButton = {
         let button = PointButton()
         button.setTitle("로그아웃", for: .normal)
-        button.backgroundColor = PointButton.getColor(true)
+        button.setColor(true)
         return button
     }()
     
+    // MARK: Setups
     override func setupView() {
         backgroundColor = .background
     }

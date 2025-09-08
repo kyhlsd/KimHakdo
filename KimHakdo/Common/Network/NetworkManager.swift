@@ -75,7 +75,7 @@ final class NetworkManager {
                 observer(.success(.failure(.network)))
                 return Disposables.create()
             }
-            
+            print("--------- API 호출 ---------")
             AF.request(url)
                 .validate()
                 .responseDecodable(of: type) { response in

@@ -10,7 +10,8 @@ import SnapKit
 
 final class PostAndEditCommentView: BaseView {
     
-    let categoryContainer = {
+    // MARK: Views
+    private let categoryContainer = {
         let view = UIView()
         view.layer.borderColor = UIColor.point.cgColor
         view.layer.borderWidth = 1
@@ -21,7 +22,6 @@ final class PostAndEditCommentView: BaseView {
     
     let categoryLabel = UILabel.create(font: AppFont.caption, textColor: .point)
     let titleLabel = UILabel.create(font: AppFont.subtitle, textColor: .black)
-    
     let textView = {
         let textView = UITextView(usingTextLayoutManager: false)
         textView.layer.borderColor = UIColor.border.cgColor
@@ -38,9 +38,9 @@ final class PostAndEditCommentView: BaseView {
         ]
         return textView
     }()
-    
     let countLabel = UILabel.create(font: AppFont.accent, textColor: .darkGray)
     
+    // MARK: Setups
     override func setupView() {
         backgroundColor = .background
     }

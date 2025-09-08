@@ -11,6 +11,7 @@ import Kingfisher
 
 final class LookupClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
     
+    // MARK: Views
     private let imageView = {
         let imageView = UIImageView()
         imageView.image = .splash
@@ -20,16 +21,7 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         imageView.clipsToBounds = true
         return imageView
     }()
-    
-    let favoriteButton = FavoriteButton()
-    
-    private let titleLabel = {
-        let label = UILabel()
-        label.font = AppFont.subtitle
-        label.textColor = .black
-        return label
-    }()
-    
+    private let titleLabel = UILabel.create(font: AppFont.subtitle, textColor: .black)
     private let categoryContainer = {
         let view = UIView()
         view.layer.borderColor = UIColor.point.cgColor
@@ -38,51 +30,26 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         view.clipsToBounds = true
         return view
     }()
-    
-    private let categoryLabel = {
-        let label = UILabel()
-        label.font = AppFont.caption
-        label.textColor = .point
-        return label
-    }()
-    
-    private let descriptionLabel = {
-        let label = UILabel()
-        label.font = AppFont.body
-        label.textColor = .border
-        return label
-    }()
-    
+    private let categoryLabel = UILabel.create(font: AppFont.caption, textColor: .point)
+    private let descriptionLabel = UILabel.create(font: AppFont.body, textColor: .border)
     private let priceStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.spacing = AppPadding.horizontalInset
         return stackView
     }()
+    private let strikeThroughPriceLabel = UILabel()
+    private let defaultPriceLabel = UILabel.create(font: AppFont.accent, textColor: .black)
+    private let pointPriceLabel = UILabel.create(font: AppFont.accent, textColor: .point)
+    private let separatorLine = SeperatorLine()
+    
+    let favoriteButton = FavoriteButton()
     
     private let attributes: [NSAttributedString.Key: Any] = [
         .font: AppFont.body,
         .foregroundColor: UIColor.disabled,
         .strikethroughStyle:  NSUnderlineStyle.single.rawValue
     ]
-    
-    private let strikeThroughPriceLabel = UILabel()
-    
-    private let defaultPriceLabel = {
-        let label = UILabel()
-        label.font = AppFont.accent
-        label.textColor = .black
-        return label
-    }()
-    
-    private let pointPriceLabel = {
-        let label = UILabel()
-        label.font = AppFont.accent
-        label.textColor = .point
-        return label
-    }()
-    
-    private let separatorLine = SeperatorLine()
     
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -132,6 +99,7 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         pointPriceLabel.text = salePercentage
     }
     
+    // MARK: Setups
     override func setupHierarchy() {
         [imageView, favoriteButton, titleLabel, descriptionLabel, categoryContainer, priceStackView, separatorLine].forEach {
             contentView.addSubview($0)

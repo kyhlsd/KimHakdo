@@ -10,18 +10,14 @@ import SnapKit
 
 final class CategoryCollectionViewCell: BaseCollectionViewCell<(ClassCategory, Bool)> {
     
+    // MARK: Views
     private let containerView = {
         let view = UIView()
         view.layer.borderWidth = 1
         view.clipsToBounds = true
         return view
     }()
-    
-    private let label = {
-        let label = UILabel()
-        label.font = AppFont.accent
-        return label
-    }()
+    private let label = UILabel.create(font: AppFont.accent, textColor: .black)
     
     override func draw(_ rect: CGRect) {
         containerView.layer.cornerRadius = containerView.frame.height / 2
@@ -36,6 +32,7 @@ final class CategoryCollectionViewCell: BaseCollectionViewCell<(ClassCategory, B
         containerView.layer.borderColor = color.cgColor
     }
     
+    // MARK: Setups
     override func setupHierarchy() {
         contentView.addSubview(containerView)
         containerView.addSubview(label)

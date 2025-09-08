@@ -10,26 +10,15 @@ import SnapKit
 
 final class LoginView: BaseView {
     
-    let splashImageView = {
+    // MARK: Views
+    private let splashImageView = {
         let imageView = UIImageView()
         imageView.image = .splash
         imageView.contentMode = .scaleAspectFill
         return imageView
     }()
-    
-    let emailLabel = {
-        let label = UILabel()
-        label.text = "이메일"
-        label.font = AppFont.subtitle
-        return label
-    }()
-    
-    let passwordLabel = {
-        let label = UILabel()
-        label.text = "비밀번호"
-        label.font = AppFont.subtitle
-        return label
-    }()
+    private let emailLabel = UILabel.create(text: "이메일", font: AppFont.subtitle, textColor: .black)
+    private let passwordLabel = UILabel.create(text: "비밀번호", font: AppFont.subtitle, textColor: .black)
     
     let emailTextField = {
         let textField = PointTextField()
@@ -37,28 +26,24 @@ final class LoginView: BaseView {
         textField.keyboardType = .emailAddress
         return textField
     }()
-    
     let passwordTextField = {
         let textField = PointTextField()
         textField.placeholder = "비밀번호를 입력하세요"
         textField.isSecureTextEntry = true
         return textField
     }()
-    
     let loginButton = {
         let button = PointButton()
         button.setTitle("로그인", for: .normal)
         return button
     }()
-    
     let warningLabel = {
-        let label = UILabel()
-        label.font = AppFont.accent
-        label.textColor = .point
+        let label = UILabel.create(font: AppFont.accent, textColor: .point)
         label.textAlignment = .center
         return label
     }()
     
+    // MARK: Setups
     override func setupView() {
         backgroundColor = .background
     }
