@@ -44,7 +44,8 @@ final class CommentsViewController: UIViewController, BaseViewController {
             moreButtonTap: moreButtonTap,
             editTap: editTap,
             deleteTap: deleteTap,
-            navItemTap: navigationItem.rightBarButtonItem?.rx.tap
+            navItemTap: navigationItem.rightBarButtonItem?.rx.tap,
+            willDisplayCell: mainView.tableView.rx.willDisplayCell
         )
         let output = viewModel.transform(input: input)
         
@@ -63,6 +64,12 @@ final class CommentsViewController: UIViewController, BaseViewController {
             }
             .disposed(by: disposeBag)
         
+        output.scrollToTop
+            .bind(with: self) { owner, indexPath in
+                owner.mainView.tableView.scrollToRow(at: indexPath, at: .top, animated: false)
+            }
+            .disposed(by: disposeBag)
+        
         output.navTitle
             .bind(to: navigationItem.rx.title)
             .disposed(by: disposeBag)
@@ -76,7 +83,9 @@ final class CommentsViewController: UIViewController, BaseViewController {
         output.pushPostCommentVC
             .bind(with: self) { owner, data in
                 let (info, prevComment) = data
-                owner.navigationController?.pushViewController(PostAndEditCommentViewController(classInfo: info, prevComment: prevComment), animated: true)
+                let vc = PostAndEditCommentViewController(classInfo: info, prevComment: prevComment)
+                vc.viewModel.delegate = owner.viewModel
+                owner.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
         
