@@ -17,7 +17,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         window = UIWindow(windowScene: scene)
         
-        window?.rootViewController = ViewController()
+        if let _ = UserDefaultHelper.token {
+            window?.rootViewController = MyTabBarController()
+        } else {
+            window?.rootViewController = LoginViewController()
+        }
+        
         window?.makeKeyAndVisible()
     }
 
