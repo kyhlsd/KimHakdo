@@ -132,7 +132,7 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             .bind(to: pushDetailVC)
             .disposed(by: disposeBag)
         
-        NotificationManager.shared.receiveIsLikcedChanged { classId, isLiked in
+        NotificationManager.shared.receiveIsLikedChanged { classId, isLiked in
             var list = totalClass.value
             if let index = list.firstIndex(where: {
                 $0.classId == classId

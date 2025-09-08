@@ -20,7 +20,7 @@ final class NotificationManager {
         ])
     }
     
-    func receiveIsLikcedChanged(receiveHandler: @escaping (String, Bool) -> ()) {
+    func receiveIsLikedChanged(receiveHandler: @escaping (String, Bool) -> ()) {
         NotificationCenter.default.addObserver(forName: isLikedChangedName, object: nil, queue: .main) { notification in
             if let userInfo = notification.userInfo,
                let classId = userInfo["classId"] as? String,

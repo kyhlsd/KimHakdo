@@ -9,10 +9,11 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-final class ClassDetailViewModel: BaseViewModel {
+final class ClassDetailViewModel: BaseViewModel, FavoriteButtonDelegate {
     
     private let id: String
     private let disposeBag = DisposeBag()
+    let errorAlert = PublishRelay<(String, String)>()
     
     init(id: String) {
         self.id = id
@@ -24,6 +25,10 @@ final class ClassDetailViewModel: BaseViewModel {
         let commentsButtonTap: ControlEvent<Void>
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     struct Output {
         let navTitle: PublishRelay<String>
         let imageURLs: PublishRelay<[String]>
@@ -33,11 +38,11 @@ final class ClassDetailViewModel: BaseViewModel {
         let date: PublishRelay<String>
         let capacity: PublishRelay<String>
         let description: PublishRelay<String>
-        let isFavorited: PublishRelay<Bool>
+        let isLikedData: PublishRelay<(String, Bool)>
         let commentsButtonTitle: BehaviorRelay<String>
         let commentsButtonEnabled: BehaviorRelay<Bool>
         let pushCommentVC: PublishRelay<([Comment], ClassCoreInfo)>
-        let errorAlert: PublishRelay<String>
+        let errorAlert: PublishRelay<(String, String)>
     }
     
     func transform(input: Input) -> Output {
@@ -49,11 +54,11 @@ final class ClassDetailViewModel: BaseViewModel {
         let date = PublishRelay<String>()
         let capacity = PublishRelay<String>()
         let description = PublishRelay<String>()
-        let isFavorited = PublishRelay<Bool>()
+        let isLikedData = PublishRelay<(String, Bool)>()
         let commentsButtonTitle = BehaviorRelay<String>(value: "댓글보기 (0)")
         let commentsButtonEnabled = BehaviorRelay<Bool>(value: false)
         let pushCommentVC = PublishRelay<([Comment], ClassCoreInfo)>()
-        let errorAlert = PublishRelay<String>()
+        let errorAlert = self.errorAlert
                 
         let comments = PublishRelay<[Comment]>()
         let classCoreInfo = PublishRelay<ClassCoreInfo>()
@@ -76,10 +81,10 @@ final class ClassDetailViewModel: BaseViewModel {
                     date.accept(owner.dateToString(date: value.date))
                     capacity.accept(owner.capacityToString(capacity: value.capacity))
                     description.accept(value.description)
-                    isFavorited.accept(value.isLiked)
+                    isLikedData.accept((value.classId, value.isLiked))
                     classCoreInfo.accept(ClassCoreInfo(classId: value.classId, title: value.title, category: value.category))
                 case .failure(let error):
-                    errorAlert.accept(error.localizedDescription)
+                    errorAlert.accept(("데이터 불러오기 실패", error.localizedDescription))
                 }
             }
             .disposed(by: disposeBag)
@@ -96,7 +101,7 @@ final class ClassDetailViewModel: BaseViewModel {
                 case .success(let value):
                     comments.accept(value.data)
                 case .failure(let error):
-                    errorAlert.accept(error.localizedDescription)
+                    errorAlert.accept(("데이터 불러오기 실패", error.localizedDescription))
                 }
             }
             .disposed(by: disposeBag)
@@ -119,6 +124,12 @@ final class ClassDetailViewModel: BaseViewModel {
             .bind(to: pushCommentVC)
             .disposed(by: disposeBag)
         
+        NotificationManager.shared.receiveIsLikedChanged { [ weak self] classId, isLiked in
+            if self?.id == classId {
+                isLikedData.accept((classId, isLiked))
+            }
+        }
+        
         return Output(
             navTitle: navTitle,
             imageURLs: imageURLs,
@@ -128,7 +139,7 @@ final class ClassDetailViewModel: BaseViewModel {
             date: date,
             capacity: capacity,
             description: description,
-            isFavorited: isFavorited,
+            isLikedData: isLikedData,
             commentsButtonTitle: commentsButtonTitle,
             commentsButtonEnabled: commentsButtonEnabled,
             pushCommentVC: pushCommentVC,

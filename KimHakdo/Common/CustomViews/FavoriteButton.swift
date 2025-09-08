@@ -17,6 +17,7 @@ final class FavoriteButton: UIButton {
     
     private let classId = BehaviorRelay<String?>(value: nil)
     private let isLiked = BehaviorRelay<Bool?>(value: nil)
+    private let hasBorder = BehaviorRelay(value: false)
     private let errorMessage = PublishRelay<String>()
     private let disposeBag = DisposeBag()
     
@@ -32,9 +33,13 @@ final class FavoriteButton: UIButton {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setData(classId: String, likeStatus: Bool) {
+    func setData(classId: String, isLiked: Bool) {
         self.classId.accept(classId)
-        self.isLiked.accept(likeStatus)
+        self.isLiked.accept(isLiked)
+    }
+    
+    func setBorder(_ hasBorder: Bool) {
+        self.hasBorder.accept(hasBorder)
     }
     
     func reset() {
@@ -70,10 +75,15 @@ final class FavoriteButton: UIButton {
             }
             .disposed(by: disposeBag)
         
-        isLiked
-            .distinctUntilChanged()
-            .bind(with: self) { owner, isLiked in
-                owner.setImage(isLiked: isLiked)
+        Observable.combineLatest(isLiked, hasBorder)
+            .distinctUntilChanged { oldValue, newValue in
+                let sameId = oldValue.0 == newValue.0
+                let sameHasBorder = oldValue.1 == newValue.1
+                return sameId && sameHasBorder
+            }
+            .bind(with: self) { owner, data in
+                let (isLiked, hasBorder) = data
+                owner.setImage(isLiked: isLiked, hasBorder: hasBorder)
             }
             .disposed(by: disposeBag)
         
@@ -84,16 +94,22 @@ final class FavoriteButton: UIButton {
             .disposed(by: disposeBag)
     }
     
-    private func setImage(isLiked: Bool?) {
-        let image: UIImage = (isLiked == true) ? .likeButtonFill : .likeButton
+    private func setImage(isLiked: Bool?, hasBorder: Bool) {
+        var image: UIImage = (isLiked == true) ? .likeButtonFill : .likeButton
+        if hasBorder {
+            tintColor = (isLiked == true) ? .point : .border
+            image = image.withRenderingMode(.alwaysTemplate)
+        } else {
+            image = image.withRenderingMode(.alwaysOriginal)
+        }
         let config = UIImage.SymbolConfiguration(scale: .large)
         let resized = image.applyingSymbolConfiguration(config)
         setImage(resized, for: .normal)
     }
     
-    func setStatusWithBorder(likeStatus: Bool) {
-        let image = UIImage(systemName: likeStatus ? "heart.fill" : "heart")
-        tintColor = likeStatus ? .point : .border
+    func setImageWithBorder(isLiked: Bool) {
+        let image = UIImage(systemName: isLiked ? "heart.fill" : "heart")
+        tintColor = isLiked ? .point : .border
         let config = UIImage.SymbolConfiguration(scale: .large)
         let resized = image?.applyingSymbolConfiguration(config)
         setImage(resized, for: .normal)

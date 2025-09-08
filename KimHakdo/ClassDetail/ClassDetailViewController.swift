@@ -87,9 +87,11 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
             .bind(to: mainView.descriptionTextView.rx.text)
             .disposed(by: disposeBag)
         
-        output.isFavorited
-            .bind(with: self) { owner, isFavorited in
-                owner.mainView.favoriteButton.setStatusWithBorder(likeStatus: isFavorited)
+        output.isLikedData
+            .bind(with: self) { owner, data in
+                let (id, isLiked) = data
+                owner.mainView.favoriteButton.setData(classId: id, isLiked: isLiked)
+                owner.mainView.favoriteButton.setBorder(true)
             }
             .disposed(by: disposeBag)
         
@@ -109,8 +111,9 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
             .disposed(by: disposeBag)
         
         output.errorAlert
-            .bind(with: self) { owner, message in
-                owner.presentDefaultAlert(title: "데이터 불러오기 실패", message: message)
+            .bind(with: self) { owner, data in
+                let (title, message) = data
+                owner.presentDefaultAlert(title: title, message: message)
             }
             .disposed(by: disposeBag)
         
