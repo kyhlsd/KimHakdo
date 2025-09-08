@@ -11,10 +11,11 @@ final class MyTabBarController: UITabBarController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setup()
+        setupVC()
+        setupAppearance()
     }
     
-    private func setup() {
+    private func setupVC() {
         let lookupNav = MyNavigationController(rootViewController: LookupClassViewController())
         lookupNav.setTabBarItem(title: "카테고리", image: UIImage(systemName: "house.fill"), tag: 0)
         
@@ -25,5 +26,18 @@ final class MyTabBarController: UITabBarController {
         settingNav.setTabBarItem(title: "설정", image: UIImage(systemName: "person.fill"), tag: 2)
         
         viewControllers = [lookupNav, searchNav, settingNav]
+    }
+    
+    private func setupAppearance() {
+        let appearance = UITabBarAppearance()
+        
+        appearance.stackedLayoutAppearance.selected.iconColor = .myAccent
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor.myAccent]
+        appearance.stackedLayoutAppearance.normal.iconColor = .disabled
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.disabled]
+        appearance.backgroundColor = .background
+        
+        tabBar.standardAppearance = appearance
+        tabBar.scrollEdgeAppearance = appearance
     }
 }

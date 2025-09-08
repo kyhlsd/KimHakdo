@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum LoginInputError: LocalizedError {
+enum LoginInputError: LocalizedError, Equatable {
     case invalidEmail
     case invalidPasswordRange(min: Int, max: Int)
     case empty
