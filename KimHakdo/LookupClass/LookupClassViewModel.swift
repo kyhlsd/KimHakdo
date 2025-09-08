@@ -64,13 +64,21 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             }
             .share()
         
+        var isLikedUpdated = false
+
         conditionChanged
             .bind(to: classList)
             .disposed(by: disposeBag)
         
         conditionChanged
             .map { _ in Date() }
-            .bind(to: lastUpdateDate)
+            .bind { value in
+                if isLikedUpdated {
+                    isLikedUpdated.toggle()
+                } else {
+                    lastUpdateDate.accept(value)
+                }
+            }
             .disposed(by: disposeBag)
         
         classList
@@ -124,7 +132,6 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             .bind(to: pushDetailVC)
             .disposed(by: disposeBag)
         
-        // TODO: scrollsToTop, 전체 리로드 해결해야
         NotificationManager.shared.receiveIsLikcedChanged { classId, isLiked in
             var list = totalClass.value
             if let index = list.firstIndex(where: {
@@ -132,6 +139,7 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             }) {
                 list[index].isLiked = isLiked
             }
+            isLikedUpdated = true
             totalClass.accept(list)
         }
         
