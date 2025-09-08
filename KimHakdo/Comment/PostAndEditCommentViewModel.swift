@@ -9,6 +9,12 @@ import Foundation
 import RxSwift
 import RxCocoa
 
+protocol PostAndEditDelegate: AnyObject {
+    var reloadComments: PublishRelay<Void> { get }
+    var shouldScrollToTop: Bool { get set }
+    var toastMessage: PublishRelay<String> { get }
+}
+
 final class PostAndEditCommentViewModel: BaseViewModel {
     
     private let classInfo: ClassCoreInfo
@@ -23,6 +29,7 @@ final class PostAndEditCommentViewModel: BaseViewModel {
     private let placeholderText = "댓글을\u{00A0}작성해주세요."
     
     private let disposeBag = DisposeBag()
+    weak var delegate: PostAndEditDelegate?
     
     struct Input {
         let contentText: ControlProperty<String?>
@@ -42,7 +49,6 @@ final class PostAndEditCommentViewModel: BaseViewModel {
         let countWarning: BehaviorRelay<Bool>
         let saveEnabled: BehaviorRelay<Bool>
         let popVC: PublishRelay<Void>
-        let toastMessage: PublishRelay<String>
         let errorAlert: PublishRelay<String>
     }
     
@@ -61,11 +67,10 @@ final class PostAndEditCommentViewModel: BaseViewModel {
         let countWarning = BehaviorRelay(value: false)
         let saveEnabled = BehaviorRelay(value: false)
         let popVC = PublishRelay<Void>()
-        let toastMessage = PublishRelay<String>()
         let errorAlert = PublishRelay<String>()
         
-        let postComment = PublishRelay<Void>()
-        let editComment = PublishRelay<Void>()
+        let postComment = PublishRelay<String>()
+        let editComment = PublishRelay<String>()
         
         input.didBeginEditing
             .withLatestFrom(input.contentText.orEmpty)
@@ -117,18 +122,18 @@ final class PostAndEditCommentViewModel: BaseViewModel {
 
         input.saveButtonTap?
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
-            .bind(with: self) { owner, _ in
+            .withLatestFrom(input.contentText.orEmpty)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .bind(with: self) { owner, content in
                 if owner.isNew {
-                    postComment.accept(())
+                    postComment.accept(content)
                 } else {
-                    editComment.accept(())
+                    editComment.accept(content)
                 }
             }
             .disposed(by: disposeBag)
         
         postComment
-            .withLatestFrom(input.contentText.orEmpty)
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .flatMap { [weak self] content in
                 guard let self else {
                     return Single<Result<Comment, APIError>>.just(.failure(.unknown))
@@ -136,10 +141,12 @@ final class PostAndEditCommentViewModel: BaseViewModel {
                 
                 return NetworkManager.shared.callRequest(url: .postComment(id: classInfo.classId, content: content), type: Comment.self)
             }
-            .bind { result in
+            .bind(with: self) { owner, result in
                 switch result {
                 case .success:
-                    toastMessage.accept("댓글이 작성되었습니다.")
+                    owner.delegate?.toastMessage.accept("댓글이 작성되었습니다.")
+                    owner.delegate?.reloadComments.accept(())
+                    owner.delegate?.shouldScrollToTop = true
                     popVC.accept(())
                 case .failure(let error):
                     errorAlert.accept(error.localizedDescription)
@@ -148,19 +155,22 @@ final class PostAndEditCommentViewModel: BaseViewModel {
             .disposed(by: disposeBag)
         
         editComment
-            .withLatestFrom(input.contentText.orEmpty)
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .flatMap { [weak self] content in
                 guard let self, let prevCommentId = self.prevComment?.commentId else {
                     return Single<Result<Comment, APIError>>.just(.failure(.unknown))
                 }
                 
+                if let prevComment = self.prevComment, content == prevComment.content {
+                    return Single<Result<Comment, APIError>>.just(.success(prevComment))
+                }
+                
                 return NetworkManager.shared.callRequest(url: .editComment(classId: classInfo.classId, commentId: prevCommentId, content: content), type: Comment.self)
             }
-            .bind { result in
+            .bind(with: self) { owner, result in
                 switch result {
                 case .success:
-                    toastMessage.accept("댓글이 수정되었습니다.")
+                    owner.delegate?.toastMessage.accept("댓글이 수정되었습니다.")
+                    owner.delegate?.reloadComments.accept(())
                     popVC.accept(())
                 case .failure(let error):
                     errorAlert.accept(error.localizedDescription)
@@ -182,7 +192,6 @@ final class PostAndEditCommentViewModel: BaseViewModel {
                       countWarning: countWarning,
                       saveEnabled: saveEnabled,
                       popVC: popVC,
-                      toastMessage: toastMessage,
                       errorAlert: errorAlert
         )
     }

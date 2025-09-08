@@ -21,7 +21,11 @@ final class SearchClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         return imageView
     }()
     
-    private let favoriteButton = FavoriteButton()
+    private let favoriteButton = {
+        let button = FavoriteButton()
+        button.setBorder(true)
+        return button
+    }()
     
     private let titleLabel = UILabel.create(font: AppFont.subtitle, textColor: .black)
     
@@ -74,7 +78,7 @@ final class SearchClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         
         setPriceLabels(price: data.price, salePrice: data.salePrice, salePercentage: data.salePercentage)
         
-        favoriteButton.setStatusWithBorder(isFavorited: data.isLiked)
+        favoriteButton.setData(classId: data.classId, isLiked: data.isLiked)
     }
     
     private func setPriceLabels(price: Int?, salePrice: Int?, salePercentage: String?) {

@@ -9,11 +9,20 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-final class CommentsViewModel: BaseViewModel {
+protocol ReloadedCommentsDelegate: AnyObject {
+    var comments: PublishRelay<[Comment]> { get }
+}
+
+final class CommentsViewModel: BaseViewModel, PostAndEditDelegate {
     
     private let comments: [Comment]
     private let classCoreInfo: ClassCoreInfo
+    let reloadComments = PublishRelay<Void>()
+    var shouldScrollToTop = false
+    let toastMessage = PublishRelay<String>()
     private let disposeBag = DisposeBag()
+    
+    weak var delegate: ReloadedCommentsDelegate?
     
     init(comments: [Comment], classCoreInfo: ClassCoreInfo) {
         self.comments = comments
@@ -25,15 +34,17 @@ final class CommentsViewModel: BaseViewModel {
         let editTap: PublishRelay<Comment>
         let deleteTap: PublishRelay<String>
         let navItemTap: ControlEvent<Void>?
+        let willDisplayCell: ControlEvent<WillDisplayCellEvent>
     }
     
     struct Output {
         let commentDataList: BehaviorRelay<[(Comment, Bool)]>
+        let scrollToTop: PublishRelay<IndexPath>
         let navTitle: Observable<String>
         let presentEditActionSheet: PublishRelay<Comment>
         let pushPostCommentVC: PublishRelay<(ClassCoreInfo, Comment?)>
         let toastMessage: PublishRelay<String>
-        let errorAlert: PublishRelay<String>
+        let errorAlert: PublishRelay<(String, String)>
     }
     
     func transform(input: Input) -> Output {
@@ -43,11 +54,14 @@ final class CommentsViewModel: BaseViewModel {
                 return (comment, isMine(id: comment.creator.userId))
             }
         let commentDataList = BehaviorRelay(value: commentData)
+        let scrollToTop = PublishRelay<IndexPath>()
         let navTitle = Observable.just(self.classCoreInfo.title)
         let presentEditActionSheet = PublishRelay<Comment>()
         let pushPostCommentVC = PublishRelay<(ClassCoreInfo, Comment?)>()
-        let toastMessage = PublishRelay<String>()
-        let errorAlert = PublishRelay<String>()
+        let toastMessage = self.toastMessage
+        let errorAlert = PublishRelay<(String, String)>()
+        
+        let reloadComments = self.reloadComments
         
         input.moreButtonTap
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
@@ -75,8 +89,9 @@ final class CommentsViewModel: BaseViewModel {
                 switch result {
                 case .success:
                     toastMessage.accept("댓글을 삭제했습니다.")
+                    reloadComments.accept(())
                 case .failure(let error):
-                    errorAlert.accept(error.localizedDescription)
+                    errorAlert.accept(("댓글 삭제 실패", error.localizedDescription))
                 }
             }
             .disposed(by: disposeBag)
@@ -90,8 +105,39 @@ final class CommentsViewModel: BaseViewModel {
             .bind(to: pushPostCommentVC)
             .disposed(by: disposeBag)
         
+        reloadComments
+            .flatMap { [weak self] in
+                guard let self else {
+                    return Single<Result<CommentsResult, APIError>>.just(.failure(.unknown))
+                }
+                return NetworkManager.shared.callRequest(url: .lookupComment(id: classCoreInfo.classId), type: CommentsResult.self)
+            }
+            .bind(with: self) { owner, result in
+                switch result {
+                case .success(let value):
+                    let commentData = value.data
+                        .map { comment in
+                            (comment, owner.isMine(id: comment.creator.userId))
+                        }
+                    commentDataList.accept(commentData)
+                    owner.delegate?.comments.accept(value.data)
+                case .failure(let error):
+                    errorAlert.accept(("댓글 새로고침 실패", error.localizedDescription))
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        input.willDisplayCell
+            .filter { [weak self] _ in self?.shouldScrollToTop == true }
+            .bind(with: self) { owner, _ in
+                owner.shouldScrollToTop = false
+                scrollToTop.accept(IndexPath(row: 0, section: 0))
+            }
+            .disposed(by: disposeBag)
+        
         return Output(
             commentDataList: commentDataList,
+            scrollToTop: scrollToTop,
             navTitle: navTitle,
             presentEditActionSheet: presentEditActionSheet,
             pushPostCommentVC: pushPostCommentVC,

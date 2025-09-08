@@ -9,9 +9,10 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-final class SearchClassViewModel: BaseViewModel {
+final class SearchClassViewModel: BaseViewModel, FavoriteButtonDelegate {
     
     private let disposeBag = DisposeBag()
+    let errorAlert = PublishRelay<(String, String)>()
     
     struct Input {
         let searchText: ControlProperty<String?>
@@ -23,20 +24,24 @@ final class SearchClassViewModel: BaseViewModel {
     
     struct Output {
         let guideText: BehaviorRelay<String>
-        let searchedClassList: PublishRelay<[ClassResult]>
+        let searchedClassList: BehaviorRelay<[ClassResult]>
         let scrollToTop: PublishRelay<IndexPath>
         let hideKeyboard: PublishRelay<Void>
         let pushDetailVC: PublishRelay<String>
-        let errorAlert: PublishRelay<String>
+        let errorAlert: PublishRelay<(String, String)>
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     func transform(input: Input) -> Output {
         let guideText = BehaviorRelay(value: "원하는 클래스가 있으신가요?")
-        let searchedClassList = PublishRelay<[ClassResult]>()
+        let searchedClassList = BehaviorRelay(value: [ClassResult]())
         let scrollToTop = PublishRelay<IndexPath>()
         let hideKeyboard = PublishRelay<Void>()
         let pushDetailVC = PublishRelay<String>()
-        let errorAlert = PublishRelay<String>()
+        let errorAlert = self.errorAlert
         
         let lastUpdateDate = PublishRelay<Date>()
         
@@ -52,14 +57,15 @@ final class SearchClassViewModel: BaseViewModel {
                 switch result {
                 case .success(let value):
                     searchedClassList.accept(value.data)
-                    lastUpdateDate.accept(Date())
+                        lastUpdateDate.accept(Date())
                 case .failure(let error):
-                    errorAlert.accept(error.localizedDescription)
+                    errorAlert.accept(("검색 실패", error.localizedDescription))
                 }
             }
             .disposed(by: disposeBag)
         
         searchedClassList
+            .skip(1)
             .map { $0.isEmpty ? "검색 결과가 없습니다" : ""}
             .distinctUntilChanged()
             .bind(to: guideText)
@@ -90,6 +96,16 @@ final class SearchClassViewModel: BaseViewModel {
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
             .bind(to: hideKeyboard)
             .disposed(by: disposeBag)
+        
+        NotificationManager.shared.receiveIsLikedChanged { classId, isLiked in
+            var list = searchedClassList.value
+            if let index = list.firstIndex(where: {
+                $0.classId == classId
+            }) {
+                list[index].isLiked = isLiked
+                searchedClassList.accept(list)
+            }
+        }
         
         return Output(
             guideText: guideText,

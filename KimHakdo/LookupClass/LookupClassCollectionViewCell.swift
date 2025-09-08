@@ -21,7 +21,7 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         return imageView
     }()
     
-    private let favoriteButton = FavoriteButton()
+    let favoriteButton = FavoriteButton()
     
     private let titleLabel = {
         let label = UILabel()
@@ -90,6 +90,7 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         strikeThroughPriceLabel.isHidden = true
         defaultPriceLabel.isHidden = true
         pointPriceLabel.text = nil
+        favoriteButton.reset()
     }
     
     override func setData(data: ClassResult) {
@@ -102,7 +103,7 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         
         setPriceLabels(price: data.price, salePrice: data.salePrice, salePercentage: data.salePercentage)
         
-        favoriteButton.setStatus(isFavorited: data.isLiked)
+        favoriteButton.setData(classId: data.classId, isLiked: data.isLiked)
     }
     
     private func setPriceLabels(price: Int?, salePrice: Int?, salePercentage: String?) {

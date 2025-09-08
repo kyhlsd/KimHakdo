@@ -9,9 +9,10 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-final class LookupClassViewModel: BaseViewModel {
+final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
     
     private let disposeBag = DisposeBag()
+    let errorAlert = PublishRelay<(String, String)>()
     
     struct Input {
         let callRequest: PublishRelay<Void>
@@ -28,7 +29,11 @@ final class LookupClassViewModel: BaseViewModel {
         let sortOption: BehaviorRelay<ClassSortOption>
         let scrollToTop: PublishRelay<IndexPath>
         let pushDetailVC: PublishRelay<String>
-        let errorAlert: PublishRelay<String>
+        let errorAlert: PublishRelay<(String, String)>
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     func transform(input: Input) -> Output {
@@ -38,9 +43,9 @@ final class LookupClassViewModel: BaseViewModel {
         let sortOption = BehaviorRelay<ClassSortOption>(value: .latest)
         let scrollToTop = PublishRelay<IndexPath>()
         let pushDetailVC = PublishRelay<String>()
-        let errorAlert = PublishRelay<String>()
+        let errorAlert = self.errorAlert
         
-        let totalClass = PublishRelay<[ClassResult]>()
+        let totalClass = BehaviorRelay(value: [ClassResult]())
         let filtered = Observable.combineLatest(totalClass, categories)
             .flatMap { [weak self] (total, category) in
                 guard let self else {
@@ -59,13 +64,21 @@ final class LookupClassViewModel: BaseViewModel {
             }
             .share()
         
+        var isLikedUpdated = false
+
         conditionChanged
             .bind(to: classList)
             .disposed(by: disposeBag)
         
         conditionChanged
             .map { _ in Date() }
-            .bind(to: lastUpdateDate)
+            .bind { value in
+                if isLikedUpdated {
+                    isLikedUpdated = false
+                } else {
+                    lastUpdateDate.accept(value)
+                }
+            }
             .disposed(by: disposeBag)
         
         classList
@@ -84,7 +97,7 @@ final class LookupClassViewModel: BaseViewModel {
                 case .success(let value):
                     totalClass.accept(value.data)
                 case .failure(let error):
-                    errorAlert.accept(error.localizedDescription)
+                    errorAlert.accept(("데이터 불러오기 실패", error.localizedDescription))
                 }
             }
             .disposed(by: disposeBag)
@@ -118,6 +131,17 @@ final class LookupClassViewModel: BaseViewModel {
             .map { $0.classId }
             .bind(to: pushDetailVC)
             .disposed(by: disposeBag)
+        
+        NotificationManager.shared.receiveIsLikedChanged { classId, isLiked in
+            var list = totalClass.value
+            if let index = list.firstIndex(where: {
+                $0.classId == classId
+            }) {
+                list[index].isLiked = isLiked
+                isLikedUpdated = true
+                totalClass.accept(list)
+            }
+        }
         
         return Output(
             categories: categories,
@@ -210,4 +234,5 @@ final class LookupClassViewModel: BaseViewModel {
             return Disposables.create()
         }
     }
+
 }

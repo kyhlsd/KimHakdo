@@ -91,12 +91,6 @@ final class PostAndEditCommentViewController: UIViewController, BaseViewControll
             }
             .disposed(by: disposeBag)
         
-        output.toastMessage
-            .bind(with: self) { owner, message in
-                owner.navigationController?.showDefaultToast(message: message)
-            }
-            .disposed(by: disposeBag)
-        
         output.errorAlert
             .bind(with: self) { owner, message in
                 owner.presentDefaultAlert(title: "댓글 저장 실패", message: message)

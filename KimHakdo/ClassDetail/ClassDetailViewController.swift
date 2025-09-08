@@ -87,9 +87,10 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
             .bind(to: mainView.descriptionTextView.rx.text)
             .disposed(by: disposeBag)
         
-        output.isFavorited
-            .bind(with: self) { owner, isFavorited in
-                owner.mainView.favoriteButton.setStatusWithBorder(isFavorited: isFavorited)
+        output.isLikedData
+            .bind(with: self) { owner, data in
+                let (id, isLiked) = data
+                owner.mainView.favoriteButton.setData(classId: id, isLiked: isLiked)
             }
             .disposed(by: disposeBag)
         
@@ -108,16 +109,19 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
             .bind(to: mainView.showCommentButton.rx.isEnabled)
             .disposed(by: disposeBag)
         
-        output.errorAlert
-            .bind(with: self) { owner, message in
-                owner.presentDefaultAlert(title: "데이터 불러오기 실패", message: message)
-            }
-            .disposed(by: disposeBag)
-        
         output.pushCommentVC
             .bind(with: self) { owner, data in
                 let (comments, classCoreInfo) = data
-                owner.navigationController?.pushViewController(CommentsViewController(comments: comments, classCoreInfo: classCoreInfo), animated: true)
+                let vc = CommentsViewController(comments: comments, classCoreInfo: classCoreInfo)
+                vc.viewModel.delegate = owner.viewModel
+                owner.navigationController?.pushViewController(vc, animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        output.errorAlert
+            .bind(with: self) { owner, data in
+                let (title, message) = data
+                owner.presentDefaultAlert(title: title, message: message)
             }
             .disposed(by: disposeBag)
         

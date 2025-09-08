@@ -85,7 +85,11 @@ final class ClassDetailView: BaseView {
     }()
     
     let separatorLine = SeperatorLine()
-    let favoriteButton = FavoriteButton()
+    let favoriteButton = {
+        let button = FavoriteButton()
+        button.setBorder(true)
+        return button
+    }()
     let showCommentButton = PointButton()
     
     override func draw(_ rect: CGRect) {
