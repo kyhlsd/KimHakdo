@@ -14,6 +14,7 @@ final class MyCommentTableViewCell: CommentTableViewCell {
     
     private var disposeBag = DisposeBag()
     
+    // MARK: Views
     private let moreButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "ellipsis"), for: .normal)
@@ -35,6 +36,7 @@ final class MyCommentTableViewCell: CommentTableViewCell {
             .disposed(by: disposeBag)
     }
     
+    // MARK: Setups
     override func setupHierarchy() {
         super.setupHierarchy()
         contentView.addSubview(moreButton)

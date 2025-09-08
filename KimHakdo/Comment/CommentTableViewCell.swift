@@ -11,6 +11,7 @@ import Kingfisher
 
 class CommentTableViewCell: BaseTableViewCell<Comment> {
 
+    // MARK: Views
     let profileImageView = {
         let imageView = UIImageView()
         imageView.kf.indicatorType = .activity
@@ -65,24 +66,29 @@ class CommentTableViewCell: BaseTableViewCell<Comment> {
     private func getTimeDifference(date: Date) -> String {
         let components = Calendar.current.dateComponents([.day, .hour, .minute], from: date, to: Date())
         
+        // 일주일 이상 차이 난다면 날짜 표기
         var result = MyFormatter.userDate.string(from: date)
         guard let dayDiff = components.day, dayDiff < 7 else {
             return result
         }
         
+        // 하루 이상 차이 난다면 며칠 전인지 표기
         result = "\(dayDiff)일 전"
         guard let hourDiff = components.hour, dayDiff < 1 else {
             return result
         }
         
+        // 한 시간 이상 차이 난다면 몇 시간 전인지 표기
         result = "\(hourDiff)시간 전"
         guard let minDiff = components.minute, hourDiff < 1 else {
             return result
         }
         
+        // 한 시간 이내라면 몇 분 전인지 표기
         return "\(minDiff)분 전"
     }
     
+    // MARK: Setups
     override func setupView() {
         contentView.backgroundColor = .clear
     }

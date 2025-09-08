@@ -10,6 +10,7 @@ import SnapKit
 
 final class CommentsView: BaseView {
     
+    // MARK: Views
     let tableView = {
         let tableView = UITableView()
         tableView.rowHeight = UITableView.automaticDimension
@@ -21,6 +22,7 @@ final class CommentsView: BaseView {
         return tableView
     }()
     
+    // MARK: Setups
     override func setupView() {
         backgroundColor = .background
     }

@@ -10,6 +10,7 @@ import SnapKit
 
 final class SearchClassView: BaseView {
     
+    // MARK: Views
     let searchBar = {
         let searchBar = UISearchBar()
         searchBar.searchTextField.font = AppFont.body
@@ -22,7 +23,6 @@ final class SearchClassView: BaseView {
         searchBar.returnKeyType = .search
         return searchBar
     }()
-    
     let collectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -34,14 +34,13 @@ final class SearchClassView: BaseView {
         collectionView.keyboardDismissMode = .onDrag
         return collectionView
     }()
+    let guideLabel = UILabel.create(font: AppFont.body, textColor: .black)
     
     let collectionViewTapGesture = {
         let tapGesture = UITapGestureRecognizer()
         tapGesture.cancelsTouchesInView = false
         return tapGesture
     }()
-    
-    let guideLabel = UILabel.create(font: AppFont.body, textColor: .black)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -52,6 +51,8 @@ final class SearchClassView: BaseView {
         searchBar.layer.cornerRadius = searchBar.frame.height / 2
     }
     
+    
+    // MARK: Setups
     private func setupTapGesture() {
         collectionView.addGestureRecognizer(collectionViewTapGesture)
     }

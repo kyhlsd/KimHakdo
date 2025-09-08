@@ -38,12 +38,10 @@ final class LoginViewController: UIViewController, BaseViewController {
         let output = viewModel.transform(input: input)
         
         output.buttonEnabled
-            .bind(to: mainView.loginButton.rx.isEnabled)
-            .disposed(by: disposeBag)
-        
-        output.buttonEnabled
-            .map { PointButton.getColor($0) }
-            .bind(to: mainView.loginButton.rx.backgroundColor)
+            .bind(with: self, onNext: { owner, isEnabled in
+                owner.mainView.loginButton.isEnabled = isEnabled
+                owner.mainView.loginButton.setColor(isEnabled)
+            })
             .disposed(by: disposeBag)
         
         output.firstResponder

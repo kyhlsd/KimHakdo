@@ -11,6 +11,35 @@ import Kingfisher
 
 final class ClassDetailView: BaseView {
     
+    // MARK: Views
+    private let profileImageView = {
+        let imageView = UIImageView()
+        imageView.kf.indicatorType = .activity
+        imageView.clipsToBounds = true
+        imageView.contentMode = .scaleToFill
+        return imageView
+    }()
+    private let infoStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.distribution = .equalSpacing
+        stackView.layer.cornerRadius = CornerRadius.big
+        stackView.layer.borderColor = UIColor.disabled.cgColor
+        stackView.layer.borderWidth = 1
+        stackView.clipsToBounds = true
+        stackView.isLayoutMarginsRelativeArrangement = true
+        stackView.layoutMargins = UIEdgeInsets(top: AppPadding.verticalPadding, left: AppPadding.horizontalPadding, bottom: AppPadding.verticalPadding, right: AppPadding.horizontalPadding)
+        return stackView
+    }()
+    private let locationGuideLabel = UILabel.create(text: "장소 ", font: AppFont.accent, textColor: .border)
+    private let dateGuideLabel = UILabel.create(text: "시간 ", font: AppFont.accent, textColor: .border)
+    private let capacityGuideLabel = UILabel.create(text: "인원 ", font: AppFont.accent, textColor: .border)
+    private let locationIconImageView = UIImageView(image: .location)
+    private let dateIconImageView = UIImageView(image: .time)
+    private let capacityIconImageView = UIImageView(image: .people)
+    private let descriptionGuideLabel = UILabel.create(text: "클래스 소개", font: AppFont.subtitle, textColor: .black)
+    private let separatorLine = SeperatorLine()
+    
     let imageCollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -24,51 +53,10 @@ final class ClassDetailView: BaseView {
         collectionView.backgroundColor = .clear
         return collectionView
     }()
-    let profileImageView = {
-        let imageView = UIImageView()
-        imageView.kf.indicatorType = .activity
-        imageView.clipsToBounds = true
-        imageView.contentMode = .scaleToFill
-        return imageView
-    }()
-    let nicknameLabel = {
-        let label = UILabel()
-        label.font = AppFont.accent
-        label.textColor = .black
-        return label
-    }()
-    
-    let infoStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.distribution = .equalSpacing
-        stackView.layer.cornerRadius = CornerRadius.big
-        stackView.layer.borderColor = UIColor.disabled.cgColor
-        stackView.layer.borderWidth = 1
-        stackView.clipsToBounds = true
-        stackView.isLayoutMarginsRelativeArrangement = true
-        stackView.layoutMargins = UIEdgeInsets(top: AppPadding.verticalPadding, left: AppPadding.horizontalPadding, bottom: AppPadding.verticalPadding, right: AppPadding.horizontalPadding)
-        return stackView
-    }()
-    
-    // 여기는 setup에서 custom
-    let locationGuideLabel = UILabel()
-    let dateGuideLabel = UILabel()
-    let capacityGuideLabel = UILabel()
-    let locationIconImageView = UIImageView(image: .location)
-    let dateIconImageView = UIImageView(image: .time)
-    let capacityIconImageView = UIImageView(image: .people)
-    let locationLabel = UILabel()
-    let dateLabel = UILabel()
-    let capacityLabel = UILabel()
-    
-    let descriptionGuideLabel = {
-        let label = UILabel()
-        label.text = "클래스 소개"
-        label.font = AppFont.subtitle
-        label.textColor = .black
-        return label
-    }()
+    let nicknameLabel = UILabel.create(font: AppFont.accent, textColor: .black)
+    let locationLabel = UILabel.create(font: AppFont.accent, textColor: .border)
+    let dateLabel = UILabel.create(font: AppFont.accent, textColor: .border)
+    let capacityLabel = UILabel.create(font: AppFont.accent, textColor: .border)
     let descriptionTextView = {
         let textView = UITextView()
         textView.isEditable = false
@@ -83,8 +71,6 @@ final class ClassDetailView: BaseView {
         ]
         return textView
     }()
-    
-    let separatorLine = SeperatorLine()
     let favoriteButton = {
         let button = FavoriteButton()
         button.setBorder(true)
@@ -105,16 +91,9 @@ final class ClassDetailView: BaseView {
         profileImageView.kf.setImage(with: url, options: ImageDownloadHelper.options)
     }
     
+    // MARK: Setups
     override func setupView() {
         backgroundColor = .background
-        
-        [locationGuideLabel, dateGuideLabel, capacityGuideLabel, locationLabel, dateLabel, capacityLabel].forEach { label in
-            label.font = AppFont.accent
-            label.textColor = .border
-        }
-        locationGuideLabel.text = "장소 "
-        dateGuideLabel.text = "시간 "
-        capacityGuideLabel.text = "인원 "
     }
 
     override func setupHierarchy() {

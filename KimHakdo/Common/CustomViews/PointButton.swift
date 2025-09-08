@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 final class PointButton: UIButton {
     
@@ -14,18 +16,18 @@ final class PointButton: UIButton {
         setup()
     }
     
-    private func setup() {
-        titleLabel?.font = AppFont.button
-        layer.cornerRadius = CornerRadius.small
-        clipsToBounds = true
-    }
-    
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    static func getColor(_ isEnabled: Bool) -> UIColor {
-        isEnabled ? .point : .disabled
+    
+    func setColor(_ isEnabled: Bool) {
+        backgroundColor = isEnabled ? .point : .disabled
+    }
+    
+    private func setup() {
+        titleLabel?.font = AppFont.button
+        layer.cornerRadius = CornerRadius.small
+        clipsToBounds = true
     }
 }
