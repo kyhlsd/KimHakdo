@@ -27,6 +27,7 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
     
     override func loadView() {
         view = mainView
+        mainView.favoriteButton.delegate = viewModel
     }
     
     override func viewDidLoad() {
@@ -89,8 +90,8 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
         
         output.isLikedData
             .bind(with: self) { owner, data in
-                let (id, isLiked) = data
-                owner.mainView.favoriteButton.setData(classId: id, isLiked: isLiked)
+                let (id, title, isLiked) = data
+                owner.mainView.favoriteButton.setData(classId: id, classTitle: title, isLiked: isLiked)
             }
             .disposed(by: disposeBag)
         
@@ -115,6 +116,12 @@ final class ClassDetailViewController: UIViewController, BaseViewController {
                 let vc = CommentsViewController(comments: comments, classCoreInfo: classCoreInfo)
                 vc.viewModel.delegate = owner.viewModel
                 owner.navigationController?.pushViewController(vc, animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        output.toastMessage
+            .bind(with: self) { owner, message in
+                owner.showDefaultToast(message: message)
             }
             .disposed(by: disposeBag)
         

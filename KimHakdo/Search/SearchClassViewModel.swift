@@ -12,6 +12,7 @@ import RxCocoa
 final class SearchClassViewModel: BaseViewModel, FavoriteButtonDelegate {
     
     private let disposeBag = DisposeBag()
+    let toastMessage = PublishRelay<String>()
     let errorAlert = PublishRelay<(String, String)>()
     
     struct Input {
@@ -28,6 +29,7 @@ final class SearchClassViewModel: BaseViewModel, FavoriteButtonDelegate {
         let scrollToTop: PublishRelay<IndexPath>
         let hideKeyboard: PublishRelay<Void>
         let pushDetailVC: PublishRelay<String>
+        let toastMessage: PublishRelay<String>
         let errorAlert: PublishRelay<(String, String)>
     }
     
@@ -41,6 +43,7 @@ final class SearchClassViewModel: BaseViewModel, FavoriteButtonDelegate {
         let scrollToTop = PublishRelay<IndexPath>()
         let hideKeyboard = PublishRelay<Void>()
         let pushDetailVC = PublishRelay<String>()
+        let toastMessage = self.toastMessage
         let errorAlert = self.errorAlert
         
         let lastUpdateDate = PublishRelay<Date>()
@@ -113,6 +116,7 @@ final class SearchClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             scrollToTop: scrollToTop,
             hideKeyboard: hideKeyboard,
             pushDetailVC: pushDetailVC,
+            toastMessage: toastMessage,
             errorAlert: errorAlert
         )
     }

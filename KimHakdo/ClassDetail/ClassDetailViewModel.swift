@@ -14,6 +14,7 @@ final class ClassDetailViewModel: BaseViewModel, FavoriteButtonDelegate, Reloade
     private let id: String
     private let disposeBag = DisposeBag()
     let comments = PublishRelay<[Comment]>()
+    let toastMessage = PublishRelay<String>()
     let errorAlert = PublishRelay<(String, String)>()
     
     init(id: String) {
@@ -39,10 +40,11 @@ final class ClassDetailViewModel: BaseViewModel, FavoriteButtonDelegate, Reloade
         let date: PublishRelay<String>
         let capacity: PublishRelay<String>
         let description: PublishRelay<String>
-        let isLikedData: PublishRelay<(String, Bool)>
+        let isLikedData: PublishRelay<(String, String, Bool)>
         let commentsButtonTitle: BehaviorRelay<String>
         let commentsButtonEnabled: BehaviorRelay<Bool>
         let pushCommentVC: PublishRelay<([Comment], ClassCoreInfo)>
+        let toastMessage: PublishRelay<String>
         let errorAlert: PublishRelay<(String, String)>
     }
     
@@ -55,14 +57,16 @@ final class ClassDetailViewModel: BaseViewModel, FavoriteButtonDelegate, Reloade
         let date = PublishRelay<String>()
         let capacity = PublishRelay<String>()
         let description = PublishRelay<String>()
-        let isLikedData = PublishRelay<(String, Bool)>()
+        let isLikedData = PublishRelay<(String, String, Bool)>()
         let commentsButtonTitle = BehaviorRelay<String>(value: "댓글보기 (0)")
         let commentsButtonEnabled = BehaviorRelay<Bool>(value: false)
         let pushCommentVC = PublishRelay<([Comment], ClassCoreInfo)>()
+        let toastMessage = self.toastMessage
         let errorAlert = self.errorAlert
                 
         let comments = self.comments
         let classCoreInfo = PublishRelay<ClassCoreInfo>()
+        var title: String? = nil
         
         input.callRequestForDetail
             .flatMap { [weak self] in
@@ -82,8 +86,9 @@ final class ClassDetailViewModel: BaseViewModel, FavoriteButtonDelegate, Reloade
                     date.accept(owner.dateToString(date: value.date))
                     capacity.accept(owner.capacityToString(capacity: value.capacity))
                     description.accept(value.description)
-                    isLikedData.accept((value.classId, value.isLiked))
+                    isLikedData.accept((value.classId, value.title, value.isLiked))
                     classCoreInfo.accept(ClassCoreInfo(classId: value.classId, title: value.title, category: value.category))
+                    title = value.title
                 case .failure(let error):
                     errorAlert.accept(("데이터 불러오기 실패", error.localizedDescription))
                 }
@@ -126,8 +131,9 @@ final class ClassDetailViewModel: BaseViewModel, FavoriteButtonDelegate, Reloade
             .disposed(by: disposeBag)
         
         NotificationManager.shared.receiveIsLikedChanged { [ weak self] classId, isLiked in
-            if self?.id == classId {
-                isLikedData.accept((classId, isLiked))
+            if self?.id == classId, let title {
+                isLikedData.accept((classId, title ,isLiked))
+                toastMessage.accept("test")
             }
         }
         
@@ -144,6 +150,7 @@ final class ClassDetailViewModel: BaseViewModel, FavoriteButtonDelegate, Reloade
             commentsButtonTitle: commentsButtonTitle,
             commentsButtonEnabled: commentsButtonEnabled,
             pushCommentVC: pushCommentVC,
+            toastMessage: toastMessage,
             errorAlert: errorAlert
         )
     }

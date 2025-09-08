@@ -12,6 +12,7 @@ import RxCocoa
 final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
     
     private let disposeBag = DisposeBag()
+    let toastMessage = PublishRelay<String>()
     let errorAlert = PublishRelay<(String, String)>()
     
     struct Input {
@@ -29,6 +30,7 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
         let sortOption: BehaviorRelay<ClassSortOption>
         let scrollToTop: PublishRelay<IndexPath>
         let pushDetailVC: PublishRelay<String>
+        let toastMessage: PublishRelay<String>
         let errorAlert: PublishRelay<(String, String)>
     }
     
@@ -43,6 +45,7 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
         let sortOption = BehaviorRelay<ClassSortOption>(value: .latest)
         let scrollToTop = PublishRelay<IndexPath>()
         let pushDetailVC = PublishRelay<String>()
+        let toastMessage = self.toastMessage
         let errorAlert = self.errorAlert
         
         let totalClass = BehaviorRelay(value: [ClassResult]())
@@ -150,6 +153,7 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             sortOption: sortOption,
             scrollToTop: scrollToTop,
             pushDetailVC: pushDetailVC,
+            toastMessage: toastMessage,
             errorAlert: errorAlert
         )
     }

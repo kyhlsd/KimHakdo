@@ -49,8 +49,9 @@ final class SearchClassViewController: UIViewController, BaseViewController {
             .disposed(by: disposeBag)
         
         output.searchedClassList
-            .bind(to: mainView.collectionView.rx.items(cellIdentifier: SearchClassCollectionViewCell.identifier, cellType: SearchClassCollectionViewCell.self)) { _, element, cell in
+            .bind(to: mainView.collectionView.rx.items(cellIdentifier: SearchClassCollectionViewCell.identifier, cellType: SearchClassCollectionViewCell.self)) { [weak self] _, element, cell in
                 cell.setData(data: element)
+                cell.favoriteButton.delegate = self?.viewModel
             }
             .disposed(by: disposeBag)
         
@@ -69,6 +70,12 @@ final class SearchClassViewController: UIViewController, BaseViewController {
         output.pushDetailVC
             .bind(with: self) { owner, id in
                 owner.navigationController?.pushViewController(ClassDetailViewController(id: id), animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        output.toastMessage
+            .bind(with: self) { owner, message in
+                owner.showDefaultToast(message: message)
             }
             .disposed(by: disposeBag)
         
