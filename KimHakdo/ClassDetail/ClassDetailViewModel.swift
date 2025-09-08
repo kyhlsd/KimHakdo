@@ -12,10 +12,10 @@ import RxCocoa
 final class ClassDetailViewModel: BaseViewModel, FavoriteButtonDelegate, ReloadedCommentsDelegate {
     
     private let id: String
-    private let disposeBag = DisposeBag()
     let comments = PublishRelay<[Comment]>()
     let toastMessage = PublishRelay<String>()
     let errorAlert = PublishRelay<(String, String)>()
+    private let disposeBag = DisposeBag()
     
     init(id: String) {
         self.id = id
@@ -48,6 +48,7 @@ final class ClassDetailViewModel: BaseViewModel, FavoriteButtonDelegate, Reloade
         let errorAlert: PublishRelay<(String, String)>
     }
     
+    // MARK: Transform
     func transform(input: Input) -> Output {
         let navTitle = PublishRelay<String>()
         let imageURLs = PublishRelay<[String]>()
@@ -68,6 +69,7 @@ final class ClassDetailViewModel: BaseViewModel, FavoriteButtonDelegate, Reloade
         let classCoreInfo = PublishRelay<ClassCoreInfo>()
         var title: String? = nil
         
+        // 클래스 상세 정보 Fetch
         input.callRequestForDetail
             .flatMap { [weak self] in
                 guard let self else {
@@ -95,6 +97,7 @@ final class ClassDetailViewModel: BaseViewModel, FavoriteButtonDelegate, Reloade
             }
             .disposed(by: disposeBag)
         
+        // 클래스 댓글 Fetch
         input.callRequestForComments
             .flatMap { [weak self] in
                 guard let self else {
@@ -112,28 +115,31 @@ final class ClassDetailViewModel: BaseViewModel, FavoriteButtonDelegate, Reloade
             }
             .disposed(by: disposeBag)
         
+        // 댓글 개수 표기
         comments
             .map { "댓글보기 \($0.count)" }
             .distinctUntilChanged()
             .bind(to: commentsButtonTitle)
             .disposed(by: disposeBag)
         
+        // 댓글 개수에 따른 enabled 처리
         comments
             .map { $0.count > 0 }
             .distinctUntilChanged()
             .bind(to: commentsButtonEnabled)
             .disposed(by: disposeBag)
         
+        // 댓글 버튼 눌렀을 때 댓글 화면으로 전환
         input.commentsButtonTap
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
             .withLatestFrom(Observable.combineLatest(comments, classCoreInfo))
             .bind(to: pushCommentVC)
             .disposed(by: disposeBag)
         
+        // 좋아요 상태가 바뀌었을 때 동기화
         NotificationManager.shared.receiveIsLikedChanged { [ weak self] classId, isLiked in
             if self?.id == classId, let title {
                 isLikedData.accept((classId, title ,isLiked))
-                toastMessage.accept("test")
             }
         }
         
@@ -155,6 +161,7 @@ final class ClassDetailViewModel: BaseViewModel, FavoriteButtonDelegate, Reloade
         )
     }
     
+    // MARK: SubMethods
     private func dateToString(date: Date?) -> String {
         if let date {
             return MyFormatter.userDate.string(from: date)

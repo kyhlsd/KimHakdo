@@ -9,6 +9,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 
+// 성공 toast, 실패 elert
 protocol FavoriteButtonDelegate: AnyObject {
     var toastMessage: PublishRelay<String> { get }
     var errorAlert: PublishRelay<(String, String)> { get }
@@ -45,6 +46,7 @@ final class FavoriteButton: UIButton {
         self.hasBorder.accept(hasBorder)
     }
     
+    // prepareForReuse에서 reset되도록
     func reset() {
         classId.accept(nil)
         classTitle = nil
@@ -115,6 +117,7 @@ final class FavoriteButton: UIButton {
     }
 }
 
+// 서버 응답 값
 struct FavoriteResult: Decodable {
     let isLiked: Bool
     

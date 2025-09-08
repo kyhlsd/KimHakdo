@@ -27,6 +27,7 @@ final class LoginViewModel: BaseViewModel {
         let errorAlert: PublishRelay<String>
     }
     
+    // MARK: Transform
     func transform(input: Input) -> Output {
         let buttonEnabled = BehaviorRelay(value: false)
         let firstResponder = Observable.just(())
@@ -43,6 +44,7 @@ final class LoginViewModel: BaseViewModel {
         let inputTexts = Observable.combineLatest(email, password)
             .share()
         
+        // 텍스트 검증
         inputTexts
             .flatMap { [weak self] texts in
                 guard let self else {
@@ -62,6 +64,7 @@ final class LoginViewModel: BaseViewModel {
             }
             .disposed(by: disposeBag)
         
+        // 로그인 성공 시 토큰/아이디 저장, 실패 시 Alert
         input.buttonTap
             .throttle(.seconds(1), scheduler: MainScheduler.instance)
             .withLatestFrom(inputTexts)
@@ -89,6 +92,7 @@ final class LoginViewModel: BaseViewModel {
         )
     }
     
+    // MARK: SubMethods
     private func saveToken(token: String) {
         UserDefaultHelper.token = token
     }
@@ -97,6 +101,7 @@ final class LoginViewModel: BaseViewModel {
         UserDefaultHelper.userId = userId
     }
     
+    // warning 문구 순위: empty -> email -> password
     private func validateTexts(texts: (String, String)) -> Single<Result<Void, LoginInputError>> {
         return Single<Result<Void, LoginInputError>>.create { [weak self] observer in
             guard let self else {
@@ -126,6 +131,7 @@ final class LoginViewModel: BaseViewModel {
         }
     }
     
+    // 이메일 검증 - 한 글자 이상 + @ + 한 글자 이상 + .com
     private func validateEmail(text: String) throws(LoginInputError) {
         let emailPattern = /^.+@.+\.com$/
         guard let _ = text.wholeMatch(of: emailPattern) else {
@@ -133,6 +139,7 @@ final class LoginViewModel: BaseViewModel {
         }
     }
     
+    // 패스워드 검증 - 2글자 이상 10글자 미만
     private func validatePassword(text: String) throws(LoginInputError) {
         let min = 2
         let max = 10

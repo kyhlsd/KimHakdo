@@ -9,7 +9,7 @@ import UIKit
 
 final class NavTitleLabel: UILabel {
     
-    var title: String
+    private let title: String
     
     init(title: String) {
         self.title = title

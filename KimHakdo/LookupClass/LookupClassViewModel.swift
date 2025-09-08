@@ -11,9 +11,9 @@ import RxCocoa
 
 final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
     
-    private let disposeBag = DisposeBag()
     let toastMessage = PublishRelay<String>()
     let errorAlert = PublishRelay<(String, String)>()
+    private let disposeBag = DisposeBag()
     
     struct Input {
         let callRequest: PublishRelay<Void>
@@ -48,6 +48,8 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
         let toastMessage = self.toastMessage
         let errorAlert = self.errorAlert
         
+        var isLikedUpdated = false
+        
         let totalClass = BehaviorRelay(value: [ClassResult]())
         let filtered = Observable.combineLatest(totalClass, categories)
             .flatMap { [weak self] (total, category) in
@@ -58,6 +60,7 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             }
         let lastUpdateDate = PublishRelay<Date>()
 
+        // 카테고리, 정렬 조건 변경 시
         let conditionChanged = Observable.combineLatest(filtered, sortOption)
             .flatMap { [weak self] (filtered, option) in
                 guard let self else {
@@ -67,12 +70,11 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             }
             .share()
         
-        var isLikedUpdated = false
-
         conditionChanged
             .bind(to: classList)
             .disposed(by: disposeBag)
         
+        // 찜 변경으로 인한 리스트 변경이 아니라면 현재 시간 accept
         conditionChanged
             .map { _ in Date() }
             .bind { value in
@@ -84,6 +86,7 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             }
             .disposed(by: disposeBag)
         
+        // 댓글 개수
         classList
             .map {
                 "\(MyFormatter.number.string(from: NSNumber(value: $0.count)) ?? "0")개"
@@ -91,6 +94,7 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             .bind(to: countText)
             .disposed(by: disposeBag)
         
+        // 전체 클래스 fetch
         input.callRequest
             .flatMap { _ in
                 NetworkManager.shared.callRequest(url: .lookupClass, type: ClassListResult.self)
@@ -105,6 +109,7 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             }
             .disposed(by: disposeBag)
         
+        // 카테고리 collectionView
         input.selectCategory
             .distinctUntilChanged { ($0.0 == $1.0) && ($0.1 == $1.1) }
             .flatMap { [weak self] (category, _) in
@@ -114,6 +119,7 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             .bind(to: categories)
             .disposed(by: disposeBag)
         
+        // 정렬 버튼
         input.sortButtonTap
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
             .bind { _ in
@@ -122,6 +128,7 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             }
             .disposed(by: disposeBag)
         
+        // CollectionView 그려진 후 ScrollToTop, 찜으로 인한 변경은 무시
         input.willDisplayCell
             .withLatestFrom(lastUpdateDate)
             .distinctUntilChanged()
@@ -129,12 +136,14 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             .bind(to: scrollToTop)
             .disposed(by: disposeBag)
         
+        // 클래스 선택 시
         input.classSelected
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
             .map { $0.classId }
             .bind(to: pushDetailVC)
             .disposed(by: disposeBag)
         
+        // 좋아요 변경 동기화
         NotificationManager.shared.receiveIsLikedChanged { classId, isLiked in
             var list = totalClass.value
             if let index = list.firstIndex(where: {
@@ -158,6 +167,7 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
         )
     }
     
+    // MARK: SubMethods
     private func sortClassList(list: [ClassResult], option: ClassSortOption) -> Observable<[ClassResult]> {
         return Observable<[ClassResult]>.create { observer in
             let sorted: [ClassResult]
@@ -183,6 +193,7 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
         }
     }
     
+    // 카테고리 필터 반영
     private func filterByCategory(total: [ClassResult], category: [(ClassCategory, Bool)]) -> Observable<[ClassResult]> {
         return Observable<[ClassResult]>.create { observer in
             if category[0].1 {
@@ -205,12 +216,14 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
         }
     }
     
+    // 전체만 선택된 상태
     private func getInitialCategories() -> [(ClassCategory, Bool)] {
         var initialCategories = ClassCategory.allCases.map { ($0, false) }
         initialCategories[0].1 = true
         return initialCategories
     }
     
+    // 카테고리 선택 시 업데이트
     private func updateSelectedCategories(current: [(ClassCategory, Bool)], selected: ClassCategory) -> Observable<[(ClassCategory, Bool)]> {
         return Observable<[(ClassCategory, Bool)]>.create { [weak self] observer in
             guard let self else {

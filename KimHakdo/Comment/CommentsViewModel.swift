@@ -9,6 +9,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 
+// comments 변경 시 이전 화면에 데이터 넘김
 protocol ReloadedCommentsDelegate: AnyObject {
     var comments: PublishRelay<[Comment]> { get }
 }
@@ -47,7 +48,10 @@ final class CommentsViewModel: BaseViewModel, PostAndEditDelegate {
         let errorAlert: PublishRelay<(String, String)>
     }
     
+    // MARK: Transform
     func transform(input: Input) -> Output {
+        // 초기값: 전화면에서 fetch한 댓글
+        // 내 댓글인지 Bool 값 함께 Mapping
         let commentData = self.comments
             .map { [weak self] comment in
                 guard let self else { return (comment, false) }
@@ -63,11 +67,13 @@ final class CommentsViewModel: BaseViewModel, PostAndEditDelegate {
         
         let reloadComments = self.reloadComments
         
+        // 더보기 버튼
         input.moreButtonTap
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
             .bind(to: presentEditActionSheet)
             .disposed(by: disposeBag)
         
+        // 댓글 수정
         input.editTap
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
             .compactMap { [weak self] comment in
@@ -77,6 +83,7 @@ final class CommentsViewModel: BaseViewModel, PostAndEditDelegate {
             .bind(to: pushPostCommentVC)
             .disposed(by: disposeBag)
         
+        // 댓글 삭제
         input.deleteTap
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
             .flatMap { [weak self] commentId in
@@ -89,6 +96,7 @@ final class CommentsViewModel: BaseViewModel, PostAndEditDelegate {
                 switch result {
                 case .success:
                     toastMessage.accept("댓글을 삭제했습니다.")
+                    // 댓글 ReFetch
                     reloadComments.accept(())
                 case .failure(let error):
                     errorAlert.accept(("댓글 삭제 실패", error.localizedDescription))
@@ -96,6 +104,7 @@ final class CommentsViewModel: BaseViewModel, PostAndEditDelegate {
             }
             .disposed(by: disposeBag)
         
+        // 댓글 작성
         input.navItemTap?
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
             .compactMap { [weak self] _ in
@@ -105,6 +114,7 @@ final class CommentsViewModel: BaseViewModel, PostAndEditDelegate {
             .bind(to: pushPostCommentVC)
             .disposed(by: disposeBag)
         
+        // 댓글 ReFetch
         reloadComments
             .flatMap { [weak self] in
                 guard let self else {
@@ -120,6 +130,7 @@ final class CommentsViewModel: BaseViewModel, PostAndEditDelegate {
                             (comment, owner.isMine(id: comment.creator.userId))
                         }
                     commentDataList.accept(commentData)
+                    // 이전 화면 데이터 동기화
                     owner.delegate?.comments.accept(value.data)
                 case .failure(let error):
                     errorAlert.accept(("댓글 새로고침 실패", error.localizedDescription))
@@ -127,6 +138,7 @@ final class CommentsViewModel: BaseViewModel, PostAndEditDelegate {
             }
             .disposed(by: disposeBag)
         
+        // 새 댓글 작성 완료 시, 댓글 TableView 그려진 후 ScrollToTop
         input.willDisplayCell
             .filter { [weak self] _ in self?.shouldScrollToTop == true }
             .bind(with: self) { owner, _ in
@@ -146,6 +158,7 @@ final class CommentsViewModel: BaseViewModel, PostAndEditDelegate {
         )
     }
     
+    // MARK: SubMethods
     private func isMine(id: String) -> Bool {
         return id == UserDefaultHelper.userId
     }
