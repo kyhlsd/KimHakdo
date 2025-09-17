@@ -48,10 +48,10 @@ final class LookupClassViewController: UIViewController, BaseViewController {
             .disposed(by: disposeBag)
         
         output.classList
-            .bind(to: mainView.classCollectionView.rx.items(cellIdentifier: LookupClassCollectionViewCell.identifier, cellType: LookupClassCollectionViewCell.self)) { [weak self] _, element, cell in
+            .bind(to: mainView.classCollectionView.rx.diffableItems(section: 0, cellType: LookupClassCollectionViewCell.self) { [weak self] _, element, cell in
                 cell.setData(data: element)
                 cell.favoriteButton.delegate = self?.viewModel
-            }
+            })
             .disposed(by: disposeBag)
         
         output.countText
@@ -61,7 +61,9 @@ final class LookupClassViewController: UIViewController, BaseViewController {
         
         output.scrollToTop
             .bind(with: self) { owner, indexPath in
-                owner.mainView.classCollectionView.scrollToItem(at: indexPath, at: .top, animated: false)
+                DispatchQueue.main.async { // diffable animation 이후로 미뤄야 동작
+                    owner.mainView.classCollectionView.scrollToItem(at: indexPath, at: .top, animated: false)
+                }
             }
             .disposed(by: disposeBag)
         

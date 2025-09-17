@@ -61,32 +61,24 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
         let lastUpdateDate = PublishRelay<Date>()
 
         // 카테고리, 정렬 조건 변경 시
-        let conditionChanged = Observable.combineLatest(filtered, sortOption)
+        Observable.combineLatest(filtered, sortOption)
             .flatMap { [weak self] (filtered, option) in
                 guard let self else {
                     return Observable.just([ClassResult]())
                 }
                 return self.sortClassList(list: filtered, option: option)
             }
-            .share()
-        
-        conditionChanged
-            .bind(to: classList)
-            .disposed(by: disposeBag)
-        
-        // 찜 변경으로 인한 리스트 변경이 아니라면 현재 시간 accept
-        conditionChanged
-            .map { _ in Date() }
             .bind { value in
                 if isLikedUpdated {
                     isLikedUpdated = false
                 } else {
-                    lastUpdateDate.accept(value)
+                    lastUpdateDate.accept(Date()) // 찜 변경으로 인한 리스트 변경이 아니라면 현재 시간 accept
                 }
+                classList.accept(value)
             }
             .disposed(by: disposeBag)
         
-        // 댓글 개수
+        // 클래스 개수
         classList
             .map {
                 "\(MyFormatter.number.string(from: NSNumber(value: $0.count)) ?? "0")개"
@@ -95,17 +87,24 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             .disposed(by: disposeBag)
         
         // 전체 클래스 fetch
+//        input.callRequest
+//            .flatMap { _ in
+//                NetworkManager.shared.callRequest(url: .lookupClass, type: ClassListResult.self)
+//            }
+//            .bind { result in
+//                switch result {
+//                case .success(let value):
+//                    totalClass.accept(value.data)
+//                case .failure(let error):
+//                    errorAlert.accept(("데이터 불러오기 실패", error.localizedDescription))
+//                }
+//            }
+//            .disposed(by: disposeBag)
+        
+        // TODO: delete - dummyData
         input.callRequest
-            .flatMap { _ in
-                NetworkManager.shared.callRequest(url: .lookupClass, type: ClassListResult.self)
-            }
-            .bind { result in
-                switch result {
-                case .success(let value):
-                    totalClass.accept(value.data)
-                case .failure(let error):
-                    errorAlert.accept(("데이터 불러오기 실패", error.localizedDescription))
-                }
+            .bind {
+                totalClass.accept(ClassListResult.dummy)
             }
             .disposed(by: disposeBag)
         
