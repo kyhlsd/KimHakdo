@@ -15,12 +15,19 @@ extension Reactive where Base: UICollectionView {
     -> Binder<Items> where Items.Element: Hashable {
         return Binder(base) { collectionView, elements in
             
-            let registration = UICollectionView.CellRegistration<Cell, Items.Element> { cell, indexPath, item in
-                configureCell(indexPath.item, item, cell)
+            var registration = objc_getAssociatedObject(collectionView, &AssociatedKeys.registration) as? UICollectionView.CellRegistration<Cell, Items.Element>
+            if registration == nil {
+                registration = UICollectionView.CellRegistration<Cell, Items.Element> { cell, indexPath, item in
+                    configureCell(indexPath.item, item, cell)
+                }
+                objc_setAssociatedObject(collectionView, &AssociatedKeys.registration, registration, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             }
             
             if objc_getAssociatedObject(collectionView, &AssociatedKeys.dataSource) == nil {
                 let dataSource = UICollectionViewDiffableDataSource<Section, Items.Element>(collectionView: collectionView) { collectionView, indexPath, item in
+                    guard let registration else {
+                        fatalError("registration not found")
+                    }
                     return collectionView.dequeueConfiguredReusableCell(using: registration, for: indexPath, item: item)
                 }
                 objc_setAssociatedObject(collectionView, &AssociatedKeys.dataSource, dataSource, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -37,5 +44,6 @@ extension Reactive where Base: UICollectionView {
 }
 
 private enum AssociatedKeys {
-    static var dataSource: UInt8 = 0
+    static var registration: UInt8 = 0
+    static var dataSource: UInt8 = 1
 }
