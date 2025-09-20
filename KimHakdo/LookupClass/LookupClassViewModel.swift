@@ -100,7 +100,7 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
 //                }
 //            }
 //            .disposed(by: disposeBag)
-        
+    
         // TODO: delete - dummyData
         input.callRequest
             .bind {
