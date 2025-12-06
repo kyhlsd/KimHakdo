@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Creator: Decodable {
+struct Creator: Decodable, Hashable {
     let userId: String
     let nick: String
     let profileImage: String?
@@ -24,4 +24,12 @@ struct Creator: Decodable {
         self.nick = try container.decode(String.self, forKey: .nick)
         self.profileImage = try container.decodeIfPresent(String.self, forKey: .profileImage)
     }
+    
+    init(userId: String, nick: String, profileImage: String?) {
+        self.userId = userId
+        self.nick = nick
+        self.profileImage = profileImage
+    }
+    
+    static let dummy = Creator(userId: "dummy Creator Id", nick: "dummy Creator nick", profileImage: nil)
 }
