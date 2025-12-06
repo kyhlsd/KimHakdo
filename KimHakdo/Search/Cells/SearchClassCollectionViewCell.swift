@@ -59,6 +59,7 @@ final class SearchClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
         strikeThroughPriceLabel.isHidden = true
         defaultPriceLabel.isHidden = true
         pointPriceLabel.text = nil
+        favoriteButton.reset()
     }
     
     override func setData(data: ClassResult) {

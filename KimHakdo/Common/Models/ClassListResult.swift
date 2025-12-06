@@ -9,9 +9,19 @@ import Foundation
 
 struct ClassListResult: Decodable {
     let data: [ClassResult]
+    
+    static let dummy = [
+        ClassResult(classId: "1", category: .beauty, title: "beauty Title", description: "beauty Description", imageURL: "", createdAt: Date(), isLiked: true, creator: .dummy, price: nil, salePrice: nil),
+        ClassResult(classId: "2", category: .design, title: "design Title", description: "design Description", imageURL: "", createdAt: Date(), isLiked: true, creator: .dummy, price: nil, salePrice: nil),
+        ClassResult(classId: "3", category: .development, title: "development Title", description: "development Description", imageURL: "", createdAt: Date(), isLiked: true, creator: .dummy, price: nil, salePrice: nil),
+        ClassResult(classId: "4", category: .foreignLanguage, title: "foreignLanguage Title", description: "foreignLanguage Description", imageURL: "", createdAt: Date(), isLiked: true, creator: .dummy, price: nil, salePrice: nil),
+        ClassResult(classId: "5", category: .beauty, title: "beauty2 Title", description: "beauty2 Description", imageURL: "", createdAt: Date(), isLiked: true, creator: .dummy, price: nil, salePrice: nil),
+        ClassResult(classId: "6", category: .beauty, title: "beauty3 Title", description: "beauty3 Description", imageURL: "", createdAt: Date(), isLiked: true, creator: .dummy, price: nil, salePrice: nil),
+        ClassResult(classId: "7", category: .investment, title: "investment Title", description: "investment Description", imageURL: "", createdAt: Date(), isLiked: true, creator: .dummy, price: nil, salePrice: nil),
+    ]
 }
 
-struct ClassResult: Decodable {
+struct ClassResult: Decodable, Hashable {
     let classId: String
     let category: ClassCategory
     let title: String
@@ -62,5 +72,18 @@ struct ClassResult: Decodable {
         self.creator = try container.decode(Creator.self, forKey: .creator)
         self.price = try container.decodeIfPresent(Int.self, forKey: .price)
         self.salePrice = try container.decodeIfPresent(Int.self, forKey: .salePrice)
+    }
+    
+    init(classId: String, category: ClassCategory, title: String, description: String, imageURL: String, createdAt: Date, isLiked: Bool, creator: Creator, price: Int?, salePrice: Int?) {
+        self.classId = classId
+        self.category = category
+        self.title = title
+        self.description = description
+        self.imageURL = imageURL
+        self.createdAt = createdAt
+        self.isLiked = isLiked
+        self.creator = creator
+        self.price = price
+        self.salePrice = salePrice
     }
 }
