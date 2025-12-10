@@ -103,12 +103,11 @@ struct ClassDetailResult: Decodable {
         date: Date().addingTimeInterval(7 * 24 * 60 * 60),
         capacity: 20,
         imageURLs: [
-            "https://picsum.photos/400/300?random=1",
-            "https://picsum.photos/400/300?random=2"
+            "Gardening"
         ],
         createdAt: Date().addingTimeInterval(-30 * 24 * 60 * 60),
         isLiked: false,
-        creator: Creator(userId: "user_001", nick: "SwiftMaster", profileImage: "https://picsum.photos/100/100?random=10")
+        creator: Creator(userId: "user_001", nick: "SwiftMaster", profileImage: "noProfileImage")
     )
 
     static let dummyEnglish = ClassDetailResult(
@@ -122,13 +121,11 @@ struct ClassDetailResult: Decodable {
         date: Date().addingTimeInterval(14 * 24 * 60 * 60),
         capacity: 15,
         imageURLs: [
-            "https://picsum.photos/400/300?random=3",
-            "https://picsum.photos/400/300?random=4",
-            "https://picsum.photos/400/300?random=5"
+            "Gardening"
         ],
         createdAt: Date().addingTimeInterval(-20 * 24 * 60 * 60),
         isLiked: true,
-        creator: Creator(userId: "user_002", nick: "EnglishPro", profileImage: "https://picsum.photos/100/100?random=11")
+        creator: Creator(userId: "user_002", nick: "EnglishPro", profileImage: "noProfileImage")
     )
 
     static let dummyDesign = ClassDetailResult(
@@ -142,7 +139,7 @@ struct ClassDetailResult: Decodable {
         date: Date().addingTimeInterval(21 * 24 * 60 * 60),
         capacity: 25,
         imageURLs: [
-            "https://picsum.photos/400/300?random=6"
+            "Gardening"
         ],
         createdAt: Date().addingTimeInterval(-10 * 24 * 60 * 60),
         isLiked: false,
@@ -160,12 +157,11 @@ struct ClassDetailResult: Decodable {
         date: nil,
         capacity: 12,
         imageURLs: [
-            "https://picsum.photos/400/300?random=7",
-            "https://picsum.photos/400/300?random=8"
+            "Yoga"
         ],
         createdAt: Date().addingTimeInterval(-5 * 24 * 60 * 60),
         isLiked: true,
-        creator: Creator(userId: "user_004", nick: "요가쌤", profileImage: "https://picsum.photos/100/100?random=12")
+        creator: Creator(userId: "user_004", nick: "요가쌤", profileImage: "noProfileImage")
     )
 
     static let dummyInvestment = ClassDetailResult(
@@ -179,11 +175,10 @@ struct ClassDetailResult: Decodable {
         date: Date().addingTimeInterval(10 * 24 * 60 * 60),
         capacity: 30,
         imageURLs: [
-            "https://picsum.photos/400/300?random=9"
-        ],
+            "Gardening"        ],
         createdAt: Date().addingTimeInterval(-15 * 24 * 60 * 60),
         isLiked: false,
-        creator: Creator(userId: "user_005", nick: "재테크전문가", profileImage: "https://picsum.photos/100/100?random=13")
+        creator: Creator(userId: "user_005", nick: "재테크전문가", profileImage: "noProfileImage")
     )
 
     static let allDummies: [ClassDetailResult] = [

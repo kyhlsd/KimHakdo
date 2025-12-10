@@ -87,7 +87,7 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             .disposed(by: disposeBag)
         
         // 전체 클래스 fetch
-            input.callRequest
+        input.callRequest
             .flatMap { _ in
                 switch AppConfig.current {
                 case .dev:
