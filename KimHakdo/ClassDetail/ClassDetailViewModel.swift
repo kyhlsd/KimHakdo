@@ -109,7 +109,12 @@ final class ClassDetailViewModel: BaseViewModel, FavoriteButtonDelegate, Reloade
                 guard let self else {
                     return Single<Result<CommentsResult, APIError>>.just(.failure(.unknown))
                 }
-                return NetworkManager.shared.callRequest(url: .lookupComment(id: id), type: CommentsResult.self)
+                switch AppConfig.current {
+                case .dev:
+                    return NetworkManager.shared.callRequest(url: .lookupComment(id: id), type: CommentsResult.self)
+                case .dummy:
+                    return Single.just(.success(CommentsResult.dummy))
+                }
             }
             .bind(with: self) { owner, result in
                 switch result {

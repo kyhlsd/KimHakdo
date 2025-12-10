@@ -50,7 +50,7 @@ struct Comment: Decodable {
         commentId: "comment_001",
         content: "강의 정말 유익했습니다! 초보자도 이해하기 쉽게 설명해주셔서 좋았어요.",
         createdAt: Date().addingTimeInterval(-3600 * 24 * 2),
-        creator: Creator(userId: "user_101", nick: "코딩초보", profileImage: "https://picsum.photos/100/100?random=20")
+        creator: Creator(userId: "user_101", nick: "초보가드너", profileImage: "https://picsum.photos/100/100?random=20")
     )
 
     static let dummy2 = Comment(
@@ -64,21 +64,21 @@ struct Comment: Decodable {
         commentId: "comment_003",
         content: "과제가 많은 편인가요? 수강 신청 고민 중입니다.",
         createdAt: Date().addingTimeInterval(-3600 * 20),
-        creator: Creator(userId: "user_103", nick: "학생A", profileImage: nil)
+        creator: Creator(userId: "user_103", nick: "꿈꾸는학생", profileImage: nil)
     )
 
     static let dummy4 = Comment(
         commentId: "comment_004",
         content: "선생님 정말 친절하시고 질문에도 성심성의껏 답변해주셨어요. 추천합니다!",
         createdAt: Date().addingTimeInterval(-3600 * 18),
-        creator: Creator(userId: "user_104", nick: "만족한수강생", profileImage: "https://picsum.photos/100/100?random=22")
+        creator: Creator(userId: "user_104", nick: "프로수강생", profileImage: "https://picsum.photos/100/100?random=22")
     )
 
     static let dummy5 = Comment(
         commentId: "comment_005",
         content: "커리큘럼이 체계적이어서 단계별로 학습하기 좋았습니다.",
         createdAt: Date().addingTimeInterval(-3600 * 15),
-        creator: Creator(userId: "user_105", nick: "개발자지망생", profileImage: "https://picsum.photos/100/100?random=23")
+        creator: Creator(userId: "user_105", nick: "지망생", profileImage: "https://picsum.photos/100/100?random=23")
     )
 
     static let dummy6 = Comment(
