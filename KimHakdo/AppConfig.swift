@@ -9,5 +9,5 @@ enum AppConfig {
     case dev
     case dummy
     
-    static let current = Self.dummy
+    static let current = Self.dev
 }
