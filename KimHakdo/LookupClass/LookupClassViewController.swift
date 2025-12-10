@@ -37,7 +37,7 @@ final class LookupClassViewController: UIViewController, BaseViewController {
             selectCategory: mainView.categoryCollectionView.rx.modelSelected((ClassCategory, Bool).self),
             sortButtonTap: mainView.sortButton.rx.tap,
             willDisplayCell: mainView.classCollectionView.rx.willDisplayCell.map { _ in () },
-            classSelected: mainView.classCollectionView.rx.modelSelected(ClassResult.self)
+            classSelected: mainView.classCollectionView.rx.diffableModelSelected(section: Int.self, ClassResult.self)
         )
         let output = viewModel.transform(input: input)
         

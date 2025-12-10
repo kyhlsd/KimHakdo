@@ -17,10 +17,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         window = UIWindow(windowScene: scene)
         
-        if let _ = UserDefaultHelper.token {
+        switch AppConfig.current {
+        case .dev:
+            if let _ = UserDefaultHelper.token {
+                window?.rootViewController = MyTabBarController()
+            } else {
+                window?.rootViewController = LoginViewController()
+            }
+        case .dummy:
             window?.rootViewController = MyTabBarController()
-        } else {
-            window?.rootViewController = LoginViewController()
         }
         
         window?.makeKeyAndVisible()

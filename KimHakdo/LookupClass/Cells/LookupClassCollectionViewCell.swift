@@ -61,8 +61,20 @@ final class LookupClassCollectionViewCell: BaseCollectionViewCell<ClassResult> {
     }
     
     override func setData(data: ClassResult) {
-        let url = try? Router.fetchImage(url: data.imageURL).asURL()
-        imageView.kf.setImage(with: url, options: ImageDownloadHelper.options)
+        switch AppConfig.current {
+        case .dev:
+            let url = try? Router.fetchImage(url: data.imageURL).asURL()
+            imageView.kf.setImage(with: url, options: ImageDownloadHelper.options)
+        case .dummy:
+            let url = URL(string: data.imageURL)
+            let processor = DownsamplingImageProcessor(
+                size: CGSize(width: Constants.deviceWidth, height: Constants.deviceWidth * 0.6)
+            )
+            imageView.kf.setImage(with: url, options: [
+                .processor(processor),
+                .scaleFactor(Constants.deviceScale)
+            ])
+        }
         
         titleLabel.text = data.title
         categoryLabel.text = data.category.description
