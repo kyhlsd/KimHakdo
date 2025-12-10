@@ -86,7 +86,7 @@ struct ClassListResult: Decodable {
         ClassResult(
             classId: "class_007",
             category: .development,
-            title: "React 웹 개발 마스터클래스",
+            title: "React 웹 개발 마스터",
             description: "React를 활용한 현대적인 웹 애플리케이션 개발을 배웁니다.",
             imageURL: "Gardening",
             createdAt: Date().addingTimeInterval(-12 * 24 * 60 * 60),
