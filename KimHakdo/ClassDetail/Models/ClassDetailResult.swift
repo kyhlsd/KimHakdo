@@ -175,10 +175,35 @@ struct ClassDetailResult: Decodable {
         date: Date().addingTimeInterval(10 * 24 * 60 * 60),
         capacity: 30,
         imageURLs: [
-            "Gardening"        ],
+            "Gardening"
+        ],
         createdAt: Date().addingTimeInterval(-15 * 24 * 60 * 60),
         isLiked: false,
         creator: Creator(userId: "user_005", nick: "재테크전문가", profileImage: "noProfileImage")
+    )
+    
+    static let dummyGardening = ClassDetailResult(
+        classId: "class_015",
+        category: .life,
+        title: "가드닝 입문 클래스",
+        description: """
+        초보자도 부담 없이 시작할 수 있는 가드닝 입문 클래스입니다.
+        작은 실내 화분 가꾸기부터 베란다를 작은 정원으로 만드는 과정까지 차근차근 따라갈 수 있도록 구성했어요.
+        흙의 종류와 배양토 선택, 물 주는 타이밍, 빛과 통풍 관리 등 식물 건강을 좌우하는 기본 원리를 자세히 배우게 됩니다.
+        또한 계절에 따라 어울리는 식물 추천과 공간을 아름답게 꾸미는 감각적인 배치 노하우도 함께 다룹니다.
+        집 안 어디든 초록을 더해 일상에 여유와 싱그러움을 채우고 싶은 분들에게 가장 친절한 첫걸음이 되어줄 수업입니다.
+        """,
+        price: 70000,
+        salePrice: 60000,
+        location: "서울시 영등포구 여의대로 321",
+        date: Date().addingTimeInterval(5 * 24 * 60 * 60),
+        capacity: 30,
+        imageURLs: [
+            "Gardening"
+        ],
+        createdAt: Date().addingTimeInterval(-1 * 24 * 60 * 60),
+        isLiked: false,
+        creator: Creator(userId: "user_015", nick: "식물집사", profileImage: "noProfileImage")
     )
 
     static let allDummies: [ClassDetailResult] = [
