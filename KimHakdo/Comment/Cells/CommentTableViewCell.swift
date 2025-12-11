@@ -59,8 +59,14 @@ class CommentTableViewCell: BaseTableViewCell<Comment> {
             profileImageView.image = .noProfile
             return
         }
-        let url = try? Router.fetchImage(url: image).asURL()
-        profileImageView.kf.setImage(with: url, options: ImageDownloadHelper.options)
+        switch AppConfig.current {
+        case .dev:
+            let url = try? Router.fetchImage(url: image).asURL()
+            profileImageView.kf.setImage(with: url, options: ImageDownloadHelper.options)
+        case .dummy:
+            let url = URL(string: image)
+            profileImageView.kf.setImage(with: url)
+        }
     }
     
     private func getTimeDifference(date: Date) -> String {

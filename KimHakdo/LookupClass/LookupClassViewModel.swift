@@ -87,24 +87,22 @@ final class LookupClassViewModel: BaseViewModel, FavoriteButtonDelegate {
             .disposed(by: disposeBag)
         
         // 전체 클래스 fetch
-//        input.callRequest
-//            .flatMap { _ in
-//                NetworkManager.shared.callRequest(url: .lookupClass, type: ClassListResult.self)
-//            }
-//            .bind { result in
-//                switch result {
-//                case .success(let value):
-//                    totalClass.accept(value.data)
-//                case .failure(let error):
-//                    errorAlert.accept(("데이터 불러오기 실패", error.localizedDescription))
-//                }
-//            }
-//            .disposed(by: disposeBag)
-    
-        // TODO: delete - dummyData
         input.callRequest
-            .bind {
-                totalClass.accept(ClassListResult.dummy)
+            .flatMap { _ in
+                switch AppConfig.current {
+                case .dev:
+                    return NetworkManager.shared.callRequest(url: .lookupClass, type: ClassListResult.self)
+                case .dummy:
+                    return Single.just(.success(ClassListResult(data: ClassListResult.dummy)))
+                }
+            }
+            .bind { result in
+                switch result {
+                case .success(let value):
+                    totalClass.accept(value.data)
+                case .failure(let error):
+                    errorAlert.accept(("데이터 불러오기 실패", error.localizedDescription))
+                }
             }
             .disposed(by: disposeBag)
         

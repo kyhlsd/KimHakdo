@@ -24,8 +24,13 @@ final class ImageCollectionViewCell: BaseCollectionViewCell<String> {
     }
     
     override func setData(data: String) {
-        let url = try? Router.fetchImage(url: data).asURL()
-        imageView.kf.setImage(with: url, options: ImageDownloadHelper.options)
+        switch AppConfig.current {
+        case .dev:
+            let url = try? Router.fetchImage(url: data).asURL()
+            imageView.kf.setImage(with: url, options: ImageDownloadHelper.options)
+        case .dummy:
+            imageView.image = UIImage(named: data)
+        }
     }
     
     override func setupHierarchy() {

@@ -87,8 +87,13 @@ final class ClassDetailView: BaseView {
             profileImageView.image = .noProfile
             return
         }
-        let url = try? Router.fetchImage(url: image).asURL()
-        profileImageView.kf.setImage(with: url, options: ImageDownloadHelper.options)
+        switch AppConfig.current {
+        case .dev:
+            let url = try? Router.fetchImage(url: image).asURL()
+            profileImageView.kf.setImage(with: url, options: ImageDownloadHelper.options)
+        case .dummy:
+            profileImageView.image = UIImage(named: image)
+        }
     }
     
     // MARK: Setups

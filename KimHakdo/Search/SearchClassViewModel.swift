@@ -49,14 +49,21 @@ final class SearchClassViewModel: BaseViewModel, FavoriteButtonDelegate {
         
         let lastUpdateDate = PublishRelay<Date>()
         
-        // 검색, 성공 시 현재 시간 aceept
+        // 검색, 성공 시 현재 시간 accept
         input.searchButtonClicked
             .withLatestFrom(input.searchText.orEmpty)
             .filter { $0.trimmingCharacters(in: .whitespacesAndNewlines).count >= 1 }
             .distinctUntilChanged()
             .throttle(.milliseconds(250), scheduler: MainScheduler.instance)
-            .flatMap {
-                NetworkManager.shared.callRequest(url: .searchClass(keyword: $0), type: ClassListResult.self)
+            .flatMap { keyword in
+                switch AppConfig.current {
+                case .dev:
+                    return NetworkManager.shared.callRequest(url: .searchClass(keyword: keyword), type: ClassListResult.self)
+                case .dummy:
+                    return Single.just(.success(ClassListResult(data: ClassListResult.dummy.filter {
+                        $0.title.contains(keyword)
+                    })))
+                }
             }
             .bind { result in
                 switch result {
