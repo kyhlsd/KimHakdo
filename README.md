@@ -49,17 +49,17 @@
 <table align="center">
   <tr>
     <th><code>로그인</code></th>
-    <th><code>메인 화면</code></th>
-    <th><code>상세 화면</code></th>
+    <th><code>클래스 조회</code></th>
+    <th><code>클래스 상세</code></th>
     <th><code>댓글</code></th>
     <th><code>검색</code></th>
   </tr>
   <tr>
-    <td><img src="https://github.com/user-attachments/assets/a13ed080-ea89-4d3d-804d-e7a8b2f9cf04" alt="로그인"></td>
-    <td><img src="https://github.com/user-attachments/assets/8fc21917-e51b-4c15-a2a6-52dc3d85f1f6" alt="클래스 조회"></td>
-    <td><img src="https://github.com/user-attachments/assets/d6f7fc07-6410-47a1-9625-2c2fc5e82bf6" alt="상세 화면"></td>
-    <td><img src="https://github.com/user-attachments/assets/e91cbde2-73a8-408a-b10d-7e0a5f82600a" alt="댓글"></td>
-    <td><img src="https://github.com/user-attachments/assets/2f7c7fb3-8ee5-4c81-a471-6412314f909a" alt="검색"></td>
+    <td><img src="https://github.com/user-attachments/assets/0a17a786-1100-4b77-ab3b-248e083a362b" alt="로그인"></td>
+    <td><img src="https://github.com/user-attachments/assets/d233f526-57c3-4656-be6b-60134cd10a21" alt="클래스 조회"></td>
+    <td><img src="https://github.com/user-attachments/assets/4e2e745e-27e6-40cb-9dd7-32a34e28c402" alt="상세 화면"></td>
+    <td><img src="https://github.com/user-attachments/assets/104f5e71-1eab-4990-a666-68610319d81c" alt="댓글"></td>
+    <td><img src="https://github.com/user-attachments/assets/e4fc74c7-d023-4cf0-9eb2-e71a5d12b598" alt="검색"></td>
   </tr>
 </table>
 
